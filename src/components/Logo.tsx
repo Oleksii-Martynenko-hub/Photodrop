@@ -9,7 +9,7 @@ export const Logo = () => {
 
   return (
     <LinkStyled href='/' underline='none'>
-      <LogoImage src={`logo-${logoSize}.png`} alt='logo' />
+      <LogoImage src={`/logo-${logoSize}.png`} alt='logo' />
     </LinkStyled>
   )
 }

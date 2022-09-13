@@ -1,22 +1,18 @@
 import React from 'react'
-import { Navigate, RouteProps } from 'react-router'
-import { Route } from 'react-router-dom'
-import { Box, CircularProgress } from '@mui/material'
+import { Navigate } from 'react-router'
 
 import { ERoutes } from 'pages/App'
+import { useSelector } from 'react-redux'
+import { selectIsLoggedIn } from 'store/login/selectors'
 
-const ProtectedRoute: React.FC<RouteProps> = (props) => {
-  const isRestoreAuthPending = false
-  const isLoggedIn = true
+interface Props {
+  element: React.FC
+}
 
-  if (isRestoreAuthPending)
-    return (
-      <Box sx={{ display: 'flex' }}>
-        <CircularProgress />
-      </Box>
-    )
+const ProtectedRoute: React.FC<Props> = ({ element: Element }) => {
+  const isLoggedIn = useSelector(selectIsLoggedIn)
 
-  return isLoggedIn ? <Route {...props} /> : <Navigate to={ERoutes.ROOT} replace />
+  return <>{isLoggedIn ? <Element /> : <Navigate to={ERoutes.ROOT} replace />}</>
 }
 
 export default ProtectedRoute
