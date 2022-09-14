@@ -5,7 +5,7 @@ import styled from 'styled-components'
 import { useMediaQuery } from './hooks/useMediaQuery'
 
 export const Logo = () => {
-  const logoSize = useMediaQuery.min(999) ? 'lg' : 'sm'
+  const logoSize = useMediaQuery.min(900) ? 'lg' : 'sm'
 
   return (
     <LinkStyled href='/' underline='none'>

@@ -1,4 +1,4 @@
-import { AppBar as Bar, IconButton, Toolbar } from '@mui/material'
+import { AppBar as Bar, IconButton, SxProps, Theme, Toolbar } from '@mui/material'
 import LogoutIcon from '@mui/icons-material/Logout'
 
 import { useDispatch, useSelector } from 'react-redux'
@@ -16,10 +16,12 @@ export const AppBar = () => {
     dispatch(logout())
   }
 
+  const headerStyles: SxProps<Theme> = { minHeight: { xs: '56px', md: '66px' } }
+
   return (
     <>
-      <Bar color='default'>
-        <Toolbar>
+      <Bar color='default' sx={headerStyles}>
+        <Toolbar sx={headerStyles}>
           <Logo />
 
           {isLoggedIn && (
@@ -30,7 +32,7 @@ export const AppBar = () => {
         </Toolbar>
       </Bar>
 
-      <Toolbar />
+      <Toolbar sx={headerStyles} />
     </>
   )
 }
