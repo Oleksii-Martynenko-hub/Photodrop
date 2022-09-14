@@ -1,5 +1,5 @@
 import React, { FC, useEffect } from 'react'
-import { Container } from '@mui/material'
+import { Container, Typography } from '@mui/material'
 import { Link, Outlet, Route, Routes } from 'react-router-dom'
 import { ERoutes } from './App'
 import CurrentAlbum from './CurrentAlbum'
@@ -26,26 +26,19 @@ const Albums: FC = () => {
   }, [albums, status])
 
   return (
-    <Container
-      sx={{
-        paddingTop: { xs: 2, md: 4 },
-        paddingX: { xs: 2, md: 4 },
-        marginTop: { xs: 0 },
-        paddingBottom: { xs: 0 },
-      }}
-    >
-      <h3>Albums</h3>
+    <>
+      <h2>Albums</h2>
 
-      {!!albums.length &&
-        albums.map(({ id, name }) => (
-          <Link key={id} to={`${id}`}>
-            {name}
-          </Link>
-        ))}
+      {albums.map(({ id, name }) => (
+        <Link key={id} to={`${id}`}>
+          <Typography variant='h4'>{name}</Typography>
+        </Link>
+      ))}
 
       <Link to={ERoutes.ALBUMS_NEW}>Create new</Link>
+
       <Outlet />
-    </Container>
+    </>
   )
 }
 
