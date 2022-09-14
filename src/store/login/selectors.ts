@@ -14,3 +14,11 @@ export const selectStatus: Selector<RootState, APIStatus> = createSelector(
   selectLoginReducer,
   ({ status }) => status,
 )
+export const selectErrorMessage: Selector<RootState, string> = createSelector(
+  selectLoginReducer,
+  ({ error }) => error.message,
+)
+export const selectStatusCode: Selector<RootState, number> = createSelector(
+  selectLoginReducer,
+  ({ error }) => error.code,
+)

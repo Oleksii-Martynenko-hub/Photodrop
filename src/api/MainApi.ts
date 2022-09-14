@@ -17,6 +17,13 @@ export type APIError = {
   code: number
 }
 
+export type ErrorResponse = {
+  data: {
+    message: string
+  }
+  status: number
+}
+
 export const InternalError = {
   message: 'Internal Error',
   code: 500,
@@ -27,16 +34,23 @@ export const getExceptionPayload = (ex: unknown): APIError => {
     return InternalError
   }
 
-  const typedException = ex as APIError
-  if (
-    ex.hasOwnProperty('message') &&
-    typeof typedException.message === 'string' &&
-    ex.hasOwnProperty('code') &&
-    typeof typedException.code === 'number'
-  ) {
-    return {
-      message: typedException.message,
-      code: typedException.code,
+  const exception = ex as { response: ErrorResponse }
+
+  if (ex.hasOwnProperty('response') && typeof exception.response === 'object') {
+    const res = exception.response as ErrorResponse
+
+    if (
+      res.hasOwnProperty('data') &&
+      typeof res.data === 'object' &&
+      res.data.hasOwnProperty('message') &&
+      typeof res.data.message === 'string' &&
+      res.hasOwnProperty('status') &&
+      typeof res.status === 'number'
+    ) {
+      return {
+        message: res.data.message,
+        code: res.status,
+      }
     }
   }
 

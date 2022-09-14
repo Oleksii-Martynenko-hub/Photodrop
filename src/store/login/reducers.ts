@@ -59,8 +59,10 @@ export const loginSlice = createSlice({
       state.status = APIStatus.FULFILLED
     })
     builder.addCase(loginAsync.rejected, (state, action) => {
-      state.error = { message: action.error.message || '', code: +(action.error.code || '0') }
-      state.status = APIStatus.REJECTED
+      if (action.payload) {
+        state.error = action.payload
+        state.status = APIStatus.REJECTED
+      }
     })
   },
 })

@@ -3,7 +3,7 @@ import { createReduxHistoryContext } from 'redux-first-history'
 import { createBrowserHistory } from 'history'
 import logger from 'redux-logger'
 
-import MainApi from 'api/MainApi'
+import MainApi, { APIError } from 'api/MainApi'
 import ProtectedApi from 'api/ProtectedApi'
 
 import loginReducer from 'store/login/reducers'
@@ -19,6 +19,7 @@ const protectedApi = ProtectedApi.getInstance()
 
 export type ThunkExtra = {
   state: RootState
+  rejectValue: APIError
   extra: {
     mainApi: MainApi
     protectedApi: ProtectedApi
