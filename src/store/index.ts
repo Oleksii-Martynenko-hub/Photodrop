@@ -18,7 +18,7 @@ const mainApi = MainApi.getInstance()
 const protectedApi = ProtectedApi.getInstance()
 
 export type ThunkExtra = {
-  getState: () => RootState
+  state: RootState
   extra: {
     mainApi: MainApi
     protectedApi: ProtectedApi

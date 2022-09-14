@@ -5,14 +5,15 @@ import { getExceptionPayload } from 'api/MainApi'
 import { ThunkExtra } from 'store'
 import { AlbumData } from 'store/albums/reducers'
 
-export const getAlbumsAsync = createAsyncThunk<AlbumData[], undefined, ThunkExtra>(
+export const getAlbumsAsync = createAsyncThunk<AlbumData[], void, ThunkExtra>(
   'albums/getAlbumsAsync',
   async (_, { rejectWithValue, extra: { protectedApi }, getState }) => {
     try {
-      const state = getState()
-      console.log('🚀 ~ state', state) // change type of getState in createAsyncThunk (getAlbumsAsync)
+      const { id } = getState().userReducer
 
-      const response = await protectedApi.getAlbums(1)
+      if (!id) throw new Error('Error getAlbumsAsync: photographerId is missing')
+
+      const response = await protectedApi.getAlbums(id)
 
       return response
     } catch (error) {
