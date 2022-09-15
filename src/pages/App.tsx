@@ -34,15 +34,14 @@ export enum ERoutes {
 }
 
 const containerStyles: SxProps<Theme> = {
-  paddingTop: { xs: 2, md: 4 },
+  paddingTop: { xs: 6, md: 9 },
   paddingX: { xs: 2, md: 4 },
   marginTop: { xs: 0 },
-  paddingBottom: { xs: 20 },
-  minHeight: '100%',
+  paddingBottom: { xs: 4 },
   flex: 'auto',
   display: 'flex',
   justifyContent: 'center',
-  alignItems: 'center',
+  alignItems: 'start',
 }
 
 const App = () => {
