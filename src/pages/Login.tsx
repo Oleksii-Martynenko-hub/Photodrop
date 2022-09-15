@@ -2,10 +2,8 @@ import { FC, useEffect, useState } from 'react'
 import { Navigate } from 'react-router'
 import { useDispatch, useSelector } from 'react-redux'
 import {
-  Box,
   Button,
   CircularProgress,
-  Container,
   FormControl,
   FormHelperText,
   Grid,
@@ -23,7 +21,6 @@ import useToggle from 'components/hooks/useToggle'
 import { useInput } from '../components/hooks/useInput'
 import { useDidMountEffect } from 'components/hooks/useDidMountEffect'
 
-import { ERoutes } from 'pages/App'
 import { loginAsync } from 'store/login/actions'
 import { checkToken } from 'store/login/reducers'
 import {
@@ -32,6 +29,8 @@ import {
   selectStatus,
   selectStatusCode,
 } from 'store/login/selectors'
+
+import { ERoutes } from 'pages/App'
 
 const Login: FC = () => {
   const dispatch = useDispatch()
