@@ -43,9 +43,10 @@ export const userSlice = createSlice({
       }
       state.status = APIStatus.REJECTED
     },
+    clearUserState: () => initialState,
   },
 })
 
-export const { setUserData } = userSlice.actions
+export const { setUserData, clearUserState } = userSlice.actions
 
 export default userSlice.reducer

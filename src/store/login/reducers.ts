@@ -28,13 +28,11 @@ export const loginSlice = createSlice({
   name: 'login',
   initialState,
   reducers: {
-    logout: (state) => {
-      state.isLoggedIn = false
-      state.status = APIStatus.IDLE
+    clearToken: () => {
       const tokens = Tokens.getInstance()
-
       tokens.clearTokens()
     },
+    clearLoginState: () => initialState,
     checkToken: (state) => {
       const tokens = Tokens.getInstance()
 
@@ -65,6 +63,6 @@ export const loginSlice = createSlice({
   },
 })
 
-export const { logout, checkToken } = loginSlice.actions
+export const { clearToken, clearLoginState, checkToken } = loginSlice.actions
 
 export default loginSlice.reducer

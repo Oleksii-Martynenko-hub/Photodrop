@@ -24,7 +24,9 @@ const initialState: AlbumsState = {
 export const albumsSlice = createSlice({
   name: 'albums',
   initialState,
-  reducers: {},
+  reducers: {
+    clearAlbumsState: () => initialState,
+  },
   extraReducers: (builder) => {
     builder.addCase(getAlbumsAsync.pending, (state) => {
       state.status = APIStatus.PENDING
@@ -40,6 +42,6 @@ export const albumsSlice = createSlice({
   },
 })
 
-// export const {  } = albumsSlice.actions
+export const { clearAlbumsState } = albumsSlice.actions
 
 export default albumsSlice.reducer

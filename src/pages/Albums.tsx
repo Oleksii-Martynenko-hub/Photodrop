@@ -5,7 +5,6 @@ import { Grid, Typography } from '@mui/material'
 
 import { APIStatus } from 'api/MainApi'
 
-import { setUserData } from 'store/user/reducers'
 import { getAlbumsAsync } from 'store/albums/actions'
 import { selectAlbums, selectStatus } from 'store/albums/selectors'
 
@@ -27,7 +26,6 @@ const Albums: FC = () => {
 
   useEffect(() => {
     if (status === APIStatus.IDLE) {
-      dispatch(setUserData())
       dispatch(getAlbumsAsync())
     }
   }, [albums, status])

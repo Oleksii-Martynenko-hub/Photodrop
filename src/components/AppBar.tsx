@@ -1,15 +1,16 @@
+import { useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { AppBar as Bar, IconButton, SxProps, Theme, Toolbar } from '@mui/material'
 import LogoutIcon from '@mui/icons-material/Logout'
 import ArrowBackIosNewRoundedIcon from '@mui/icons-material/ArrowBackIosNewRounded'
 
-import { logout } from 'store/login/reducers'
+import { logoutAsync } from 'store/login/actions'
 import { selectIsLoggedIn } from 'store/login/selectors'
 
-import { Logo } from '../components/Logo'
-import { useEffect } from 'react'
-import useToggle from './hooks/useToggle'
+import useToggle from 'components/hooks/useToggle'
+
+import { Logo } from 'components/Logo'
 
 export const AppBar = () => {
   const dispatch = useDispatch()
@@ -24,7 +25,7 @@ export const AppBar = () => {
   }, [location.pathname])
 
   const handleOnClickLogout = () => {
-    dispatch(logout())
+    dispatch(logoutAsync())
   }
 
   const headerStyles: SxProps<Theme> = { minHeight: { xs: '56px', md: '66px' } }
