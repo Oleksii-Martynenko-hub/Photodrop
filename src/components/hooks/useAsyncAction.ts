@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
-import { APIError } from 'api/MainApi'
+
+import { APIError } from 'api/ErrorHandler'
 
 export const UnhandledError = {
   message: 'Cannot handle error data.',

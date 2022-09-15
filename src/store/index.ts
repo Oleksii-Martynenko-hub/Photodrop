@@ -3,8 +3,9 @@ import { createReduxHistoryContext } from 'redux-first-history'
 import { createBrowserHistory } from 'history'
 import logger from 'redux-logger'
 
-import MainApi, { APIError } from 'api/MainApi'
+import MainApi from 'api/MainApi'
 import ProtectedApi from 'api/ProtectedApi'
+import { APIError } from 'api/ErrorHandler'
 
 import loginReducer from 'store/login/reducers'
 import userReducer from 'store/user/reducers'

@@ -1,11 +1,10 @@
 import { createAsyncThunk } from '@reduxjs/toolkit'
 
-import { getExceptionPayload } from 'api/MainApi'
+import { getExceptionPayload } from 'api/ErrorHandler'
+import { LoginData, TokensData } from 'api/MainApi'
 
 import { ThunkExtra } from 'store'
-import { LoginData } from 'store/login/reducers'
 
-import { TokensData } from 'utils/local-storage/tokens'
 
 export const loginAsync = createAsyncThunk<TokensData, LoginData, ThunkExtra>(
   'login/loginAsync',

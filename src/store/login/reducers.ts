@@ -1,15 +1,13 @@
 import { createSlice } from '@reduxjs/toolkit'
 
-import { APIError, APIStatus } from 'api/MainApi'
+import { APIError } from 'api/ErrorHandler'
+import { APIStatus } from 'api/MainApi'
 
 import { loginAsync } from 'store/login/actions'
 
 import Tokens from 'utils/local-storage/tokens'
 
-export interface LoginData {
-  login: string
-  password: string
-}
+
 
 interface LoginState {
   isLoggedIn: boolean

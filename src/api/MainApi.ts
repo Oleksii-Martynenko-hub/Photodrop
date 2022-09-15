@@ -1,7 +1,5 @@
 /* eslint-disable no-prototype-builtins */
 import HttpClient from 'api/HttpClient'
-import { LoginData } from 'store/login/reducers'
-import { TokensData } from 'utils/local-storage/tokens'
 
 export const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080/api'
 
@@ -12,49 +10,13 @@ export enum APIStatus {
   REJECTED = 'REJECTED',
 }
 
-export type APIError = {
-  message: string
-  code: number
+export interface TokensData {
+  token: string
 }
 
-export type ErrorResponse = {
-  data: {
-    message: string
-  }
-  status: number
-}
-
-export const InternalError = {
-  message: 'Internal Error',
-  code: 500,
-}
-
-export const getExceptionPayload = (ex: unknown): APIError => {
-  if (typeof ex !== 'object' || !ex) {
-    return InternalError
-  }
-
-  const exception = ex as { response: ErrorResponse }
-
-  if (ex.hasOwnProperty('response') && typeof exception.response === 'object') {
-    const res = exception.response as ErrorResponse
-
-    if (
-      res.hasOwnProperty('data') &&
-      typeof res.data === 'object' &&
-      res.data.hasOwnProperty('message') &&
-      typeof res.data.message === 'string' &&
-      res.hasOwnProperty('status') &&
-      typeof res.status === 'number'
-    ) {
-      return {
-        message: res.data.message,
-        code: res.status,
-      }
-    }
-  }
-
-  return InternalError
+export interface LoginData {
+  login: string
+  password: string
 }
 
 class MainApi extends HttpClient {

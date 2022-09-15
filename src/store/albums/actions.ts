@@ -1,9 +1,9 @@
 import { createAsyncThunk } from '@reduxjs/toolkit'
 
-import { getExceptionPayload } from 'api/MainApi'
+import { AlbumData } from 'api/ProtectedApi'
+import { getExceptionPayload } from 'api/ErrorHandler'
 
 import { ThunkExtra } from 'store'
-import { AlbumData } from 'store/albums/reducers'
 
 export const getAlbumsAsync = createAsyncThunk<AlbumData[], void, ThunkExtra>(
   'albums/getAlbumsAsync',

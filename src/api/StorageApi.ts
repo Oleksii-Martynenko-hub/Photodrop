@@ -1,4 +1,5 @@
 import HttpClientProtected from 'api/HttpClientProtected'
+import { PresignedPhotosPostResponse } from './ProtectedApi'
 
 export const API_URL = process.env.STORAGE_API_URL || 'http://localhost:8080/api'
 
@@ -17,7 +18,8 @@ class StorageApi extends HttpClientProtected {
     return this.classInstance
   }
 
-  public postPhoto = () => this.instance.post<any>('/')
+  public postPhoto = (uploadPhotoBody: PresignedPhotosPostResponse) =>
+    this.instance.post<string>('/', uploadPhotoBody)
 }
 
 export default StorageApi

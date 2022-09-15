@@ -4,9 +4,7 @@ enum Locals {
   TOKEN = 'token',
 }
 
-export interface TokensData {
-  token: string
-}
+
 
 export default class Tokens extends LocalStorage<Locals> {
   private static instance?: Tokens

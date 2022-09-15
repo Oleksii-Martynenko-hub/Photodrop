@@ -1,16 +1,10 @@
 import { createSlice } from '@reduxjs/toolkit'
 
-import { APIError, APIStatus } from 'api/MainApi'
+import { APIError } from 'api/ErrorHandler'
+import { APIStatus } from 'api/MainApi'
+import { AlbumData } from 'api/ProtectedApi'
 
 import { getAlbumsAsync } from 'store/albums/actions'
-
-export interface AlbumData {
-  id: number
-  name: string
-  location: string
-  date: string
-  photographerId: number
-}
 
 interface AlbumsState {
   albums: AlbumData[]
