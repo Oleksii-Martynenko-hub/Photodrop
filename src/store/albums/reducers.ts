@@ -3,10 +3,11 @@ import { createSlice } from '@reduxjs/toolkit'
 import { APIError } from 'api/ErrorHandler'
 import { APIStatus } from 'api/MainApi'
 import { AlbumData } from 'api/ProtectedApi'
+import { pendingCase, rejectedCase } from 'store'
 
-import { getAlbumsAsync } from 'store/albums/actions'
+import { getAlbumsAsync, postCreateAlbumAsync } from 'store/albums/actions'
 
-interface AlbumsState {
+export interface AlbumsState {
   albums: AlbumData[]
   status: APIStatus
   error: APIError
@@ -28,16 +29,18 @@ export const albumsSlice = createSlice({
     clearAlbumsState: () => initialState,
   },
   extraReducers: (builder) => {
-    builder.addCase(getAlbumsAsync.pending, (state) => {
-      state.status = APIStatus.PENDING
-    })
+    builder.addCase(getAlbumsAsync.pending, pendingCase())
+    builder.addCase(getAlbumsAsync.rejected, rejectedCase())
     builder.addCase(getAlbumsAsync.fulfilled, (state, action) => {
       state.status = APIStatus.FULFILLED
       state.albums = action.payload
     })
-    builder.addCase(getAlbumsAsync.rejected, (state, action) => {
-      state.error = { message: action.error.message || '', code: +(action.error.code || '0') }
-      state.status = APIStatus.REJECTED
+
+    builder.addCase(postCreateAlbumAsync.pending, pendingCase())
+    builder.addCase(postCreateAlbumAsync.rejected, rejectedCase())
+    builder.addCase(postCreateAlbumAsync.fulfilled, (state, action) => {
+      state.status = APIStatus.FULFILLED
+      state.albums.push(action.payload)
     })
   },
 })

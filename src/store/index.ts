@@ -3,13 +3,13 @@ import { createReduxHistoryContext } from 'redux-first-history'
 import { createBrowserHistory } from 'history'
 import logger from 'redux-logger'
 
-import MainApi from 'api/MainApi'
+import MainApi, { APIStatus } from 'api/MainApi'
 import ProtectedApi from 'api/ProtectedApi'
 import { APIError } from 'api/ErrorHandler'
 
-import loginReducer from 'store/login/reducers'
-import userReducer from 'store/user/reducers'
-import albumsReducer from 'store/albums/reducers'
+import loginReducer, { LoginState } from 'store/login/reducers'
+import userReducer, { UsersState } from 'store/user/reducers'
+import albumsReducer, { AlbumsState } from 'store/albums/reducers'
 
 const { createReduxHistory, routerMiddleware, routerReducer } = createReduxHistoryContext({
   history: createBrowserHistory(),
@@ -32,6 +32,17 @@ export const apis = {
   protectedApi,
 }
 
+export const pendingCase = (callback?: VoidFunction) => (state: CommonState) => {
+  state.status = APIStatus.PENDING
+  if (callback) callback()
+}
+export const rejectedCase =
+  (callback?: VoidFunction) => (state: CommonState, action: { payload: APIError | undefined }) => {
+    if (action.payload) state.error = action.payload
+    state.status = APIStatus.REJECTED
+    if (callback) callback()
+  }
+
 export const store = configureStore({
   reducer: {
     router: routerReducer,
@@ -50,5 +61,6 @@ export const store = configureStore({
 
 export const history = createReduxHistory(store)
 
+export type CommonState = LoginState | UsersState | AlbumsState
 export type RootState = ReturnType<typeof store.getState>
 export type AppDispatch = typeof store.dispatch

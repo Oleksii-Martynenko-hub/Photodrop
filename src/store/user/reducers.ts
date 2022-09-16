@@ -4,6 +4,7 @@ import jwt from 'jwt-decode'
 import { APIStatus } from 'api/MainApi'
 
 import Tokens from 'utils/local-storage/tokens'
+import { APIError } from 'api/ErrorHandler'
 
 export type TokenDecodeData = {
   id: number
@@ -12,16 +13,21 @@ export type TokenDecodeData = {
   exp: number
 }
 
-interface UsersState {
+export interface UsersState {
   id: number | undefined
   login: string | undefined
   status: APIStatus
+  error: APIError
 }
 
 const initialState: UsersState = {
   id: undefined,
   login: undefined,
   status: APIStatus.IDLE,
+  error: {
+    message: '',
+    code: 0,
+  },
 }
 
 export const userSlice = createSlice({

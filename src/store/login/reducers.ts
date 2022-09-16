@@ -2,14 +2,13 @@ import { createSlice } from '@reduxjs/toolkit'
 
 import { APIError } from 'api/ErrorHandler'
 import { APIStatus } from 'api/MainApi'
+import { pendingCase, rejectedCase } from 'store'
 
 import { loginAsync } from 'store/login/actions'
 
 import Tokens from 'utils/local-storage/tokens'
 
-
-
-interface LoginState {
+export interface LoginState {
   isLoggedIn: boolean
   status: APIStatus
   error: APIError
@@ -43,9 +42,8 @@ export const loginSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    builder.addCase(loginAsync.pending, (state) => {
-      state.status = APIStatus.PENDING
-    })
+    builder.addCase(loginAsync.pending, pendingCase())
+    builder.addCase(loginAsync.rejected, rejectedCase())
     builder.addCase(loginAsync.fulfilled, (state, action) => {
       const tokens = Tokens.getInstance()
 
@@ -53,12 +51,6 @@ export const loginSlice = createSlice({
 
       state.isLoggedIn = true
       state.status = APIStatus.FULFILLED
-    })
-    builder.addCase(loginAsync.rejected, (state, action) => {
-      if (action.payload) {
-        state.error = action.payload
-        state.status = APIStatus.REJECTED
-      }
     })
   },
 })

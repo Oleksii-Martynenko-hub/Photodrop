@@ -1,6 +1,6 @@
 import { createAsyncThunk } from '@reduxjs/toolkit'
 
-import { AlbumData } from 'api/ProtectedApi'
+import { AlbumData, CreateAlbumData } from 'api/ProtectedApi'
 import { getExceptionPayload } from 'api/ErrorHandler'
 
 import { ThunkExtra } from 'store'
@@ -12,11 +12,35 @@ export const getAlbumsAsync = createAsyncThunk<AlbumData[], void, ThunkExtra>(
     try {
       await dispatch(setUserData())
       const { id } = getState().userReducer
-      console.log('🚀 getAlbumsAsync~ id', id)
 
       if (!id) throw new Error('Error getAlbumsAsync: photographerId is missing')
 
       const response = await protectedApi.getAlbums(id)
+
+      return response
+    } catch (error) {
+      return rejectWithValue(getExceptionPayload(error))
+    }
+  },
+)
+
+export const postCreateAlbumAsync = createAsyncThunk<
+  AlbumData,
+  Omit<CreateAlbumData, 'photographerId'>,
+  ThunkExtra
+>(
+  'albums/postCreateAlbumAsync',
+  async (albumData, { rejectWithValue, extra: { protectedApi }, getState, dispatch }) => {
+    try {
+      await dispatch(setUserData())
+      const { id } = getState().userReducer
+
+      if (!id) throw new Error('Error getAlbumsAsync: photographerId is missing')
+
+      const response = await protectedApi.postCreateAlbum({
+        photographerId: id,
+        ...albumData,
+      })
 
       return response
     } catch (error) {
