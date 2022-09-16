@@ -42,7 +42,9 @@ export const store = configureStore({
   middleware: (gDM) =>
     gDM({
       thunk: { extraArgument: apis },
-    }).concat(routerMiddleware, logger),
+    }).concat(
+      process.env.NODE_ENV === 'production' ? [routerMiddleware] : [routerMiddleware, logger],
+    ),
   devTools: process.env.NODE_ENV !== 'production',
 })
 

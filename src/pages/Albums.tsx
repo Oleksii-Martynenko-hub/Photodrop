@@ -39,14 +39,7 @@ const Albums: FC = () => {
           <>
             <Typography variant='h2'>Albums</Typography>
 
-            {(albums.length
-              ? albums
-              : [
-                  { id: 13, name: 'album13' },
-                  { id: 14, name: 'album14' },
-                  { id: 11, name: 'album11' },
-                ]
-            ).map(({ id, name }) => (
+            {albums.map(({ id, name }) => (
               <Link key={id} to={`${id}`}>
                 <Typography variant='h4'>{name}</Typography>
               </Link>
