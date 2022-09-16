@@ -1,6 +1,7 @@
 import { Provider } from 'react-redux'
 import { HistoryRouter } from 'redux-first-history/rr6'
 import { Container, CssBaseline, SxProps, Theme, ThemeProvider } from '@mui/material'
+import { Slide, ToastContainer } from 'react-toastify'
 
 import { theme } from 'themes/palette'
 import { GlobalStyles } from 'themes/global'
@@ -9,6 +10,8 @@ import { store, history } from 'store'
 
 import { AppBar } from 'components/AppBar'
 import AnimatedRoutes from 'pages/AnimatedRoutes'
+
+import 'react-toastify/dist/ReactToastify.css'
 
 export enum ERoutes {
   NOT_EXIST = '*',
@@ -39,6 +42,8 @@ const App = () => {
           <ThemeProvider theme={theme}>
             <CssBaseline />
             <GlobalStyles />
+
+            <ToastContainer transition={Slide} />
 
             <AppBar />
 
