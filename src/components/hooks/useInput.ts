@@ -9,7 +9,7 @@ export type OnChange = (event: ChangeEvent) => void
 export const useInput = (defaultValue = ''): [string, OnChange] => {
   const [value, setValue] = useState<string>(defaultValue)
 
-  const onChange: OnChange = (data: ChangeEvent) => {
+  const onChange: OnChange = (data) => {
     const valueInput = typeof data === 'string' ? data : data.target.value
 
     setValue(valueInput)
