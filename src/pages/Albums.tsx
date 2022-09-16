@@ -1,7 +1,9 @@
 import { FC, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Link, Outlet, useLocation } from 'react-router-dom'
-import { Grid, Typography } from '@mui/material'
+import { Fab, Grid, Typography } from '@mui/material'
+import AddRoundedIcon from '@mui/icons-material/AddRounded'
+import { motion } from 'framer-motion'
 
 import { APIStatus } from 'api/MainApi'
 
@@ -36,17 +38,33 @@ const Albums: FC = () => {
         {isShowOutlet ? (
           <Outlet />
         ) : (
-          <>
-            <Typography variant='h2'>Albums</Typography>
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            <Grid container alignItems='start'>
+              <Grid item xs>
+                <Typography variant='h3' gutterBottom>
+                  Albums
+                </Typography>
+              </Grid>
 
-            {albums.map(({ id, name }) => (
-              <Link key={id} to={`${id}`}>
-                <Typography variant='h4'>{name}</Typography>
+              <Link to={ERoutes.ALBUMS_NEW}>
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  whileTap={{ scale: 0.9 }}
+                >
+                  <Fab color='primary' size='small' sx={{ borderRadius: '8px' }}>
+                    <AddRoundedIcon sx={{ fontSize: '30px' }} />
+                  </Fab>
+                </motion.div>
               </Link>
-            ))}
-
-            <Link to={ERoutes.ALBUMS_NEW}>Create new</Link>
-          </>
+              {albums.map(({ id, name }) => (
+                <Link key={id} to={`${id}`}>
+                  <Typography variant='h4'>{name}</Typography>
+                </Link>
+              ))}
+            </Grid>
+          </motion.div>
         )}
       </Grid>
     </>

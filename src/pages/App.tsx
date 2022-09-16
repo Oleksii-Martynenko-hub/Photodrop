@@ -1,28 +1,14 @@
-import { Navigate, Route, Routes } from 'react-router-dom'
 import { Provider } from 'react-redux'
 import { HistoryRouter } from 'redux-first-history/rr6'
-import {
-  Box,
-  CircularProgress,
-  Container,
-  CssBaseline,
-  SxProps,
-  Theme,
-  ThemeProvider,
-} from '@mui/material'
+import { Container, CssBaseline, SxProps, Theme, ThemeProvider } from '@mui/material'
 
 import { theme } from 'themes/palette'
-
-import { AppBar } from 'components/AppBar'
-
-import Login from 'pages/Login'
-import Albums from 'pages/Albums'
 import { GlobalStyles } from 'themes/global'
-import ProtectedRoute from 'components/ProtectedRoute'
-import CurrentAlbum from './CurrentAlbum'
-import NewAlbum from './NewAlbum'
 
 import { store, history } from 'store'
+
+import { AppBar } from 'components/AppBar'
+import AnimatedRoutes from 'pages/AnimatedRoutes'
 
 export enum ERoutes {
   NOT_EXIST = '*',
@@ -34,7 +20,7 @@ export enum ERoutes {
 }
 
 const containerStyles: SxProps<Theme> = {
-  paddingTop: { xs: 6, md: 9 },
+  paddingTop: { xs: 2, md: 4 },
   paddingX: { xs: 2, md: 4 },
   marginTop: { xs: 0 },
   paddingBottom: { xs: 4 },
@@ -42,6 +28,7 @@ const containerStyles: SxProps<Theme> = {
   display: 'flex',
   justifyContent: 'center',
   alignItems: 'start',
+  position: 'relative',
 }
 
 const App = () => {
@@ -56,19 +43,7 @@ const App = () => {
             <AppBar />
 
             <Container sx={{ ...containerStyles }}>
-              <Routes>
-                <Route path={ERoutes.ROOT} element={<Navigate to={ERoutes.LOGIN} replace />} />
-
-                <Route path={ERoutes.LOGIN} element={<Login />} />
-
-                <Route path={ERoutes.ALBUMS} element={<ProtectedRoute element={Albums} />}>
-                  <Route path={ERoutes.ALBUMS_ID} element={<CurrentAlbum />} />
-
-                  <Route path={ERoutes.ALBUMS_NEW} element={<NewAlbum />} />
-                </Route>
-
-                <Route path={ERoutes.NOT_EXIST} element={<Navigate to={ERoutes.ROOT} replace />} />
-              </Routes>
+              <AnimatedRoutes />
             </Container>
           </ThemeProvider>
         </HistoryRouter>
