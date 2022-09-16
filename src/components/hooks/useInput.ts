@@ -5,15 +5,25 @@ export type ChangeEvent =
   | React.ChangeEvent<HTMLTextAreaElement>
   // | React.ChangeEvent<HTMLSelectElement>
 export type OnChange = (event: ChangeEvent) => void
+export type SetValue<T> = (value?: T) => OnChange
+export type Actions<T> = {
+  setState: React.Dispatch<React.SetStateAction<T>>
+  onChange: OnChange
+}
 
-export const useInput = (defaultValue = ''): [string, OnChange] => {
-  const [value, setValue] = useState<string>(defaultValue)
+export const useInput = <T = string>(defaultValue: T): [T, Actions<T>] => {
+  const [value, setValue] = useState<T>(defaultValue as unknown as T)
 
   const onChange: OnChange = (data) => {
-    const valueInput = typeof data === 'string' ? data : data.target.value
+    const valueInput = data.target.value
 
-    setValue(valueInput)
+    setValue(valueInput as unknown as T)
   }
 
-  return [value, onChange]
+  const actions: Actions<T> = {
+    setState: setValue,
+    onChange,
+  }
+
+  return [value, actions]
 }
