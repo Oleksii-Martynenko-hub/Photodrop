@@ -1,7 +1,15 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { Provider } from 'react-redux'
 import { HistoryRouter } from 'redux-first-history/rr6'
-import { Box, CircularProgress, CssBaseline, ThemeProvider } from '@mui/material'
+import {
+  Box,
+  CircularProgress,
+  Container,
+  CssBaseline,
+  SxProps,
+  Theme,
+  ThemeProvider,
+} from '@mui/material'
 
 import { theme } from 'themes/palette'
 
@@ -25,6 +33,17 @@ export enum ERoutes {
   ALBUMS_ID = ':id',
 }
 
+const containerStyles: SxProps<Theme> = {
+  paddingTop: { xs: 6, md: 9 },
+  paddingX: { xs: 2, md: 4 },
+  marginTop: { xs: 0 },
+  paddingBottom: { xs: 4 },
+  flex: 'auto',
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'start',
+}
+
 const App = () => {
   return (
     <>
@@ -36,18 +55,21 @@ const App = () => {
 
             <AppBar />
 
-            <Routes>
-              <Route path={ERoutes.ROOT} element={<Navigate to={ERoutes.LOGIN} replace />}></Route>
-              <Route path={ERoutes.LOGIN} element={<Login />} />
+            <Container sx={{ ...containerStyles }}>
+              <Routes>
+                <Route path={ERoutes.ROOT} element={<Navigate to={ERoutes.LOGIN} replace />} />
 
-              <Route path={ERoutes.ALBUMS} element={<ProtectedRoute element={Albums} />}>
-                <Route path={ERoutes.ALBUMS_ID} element={<CurrentAlbum />} />
+                <Route path={ERoutes.LOGIN} element={<Login />} />
 
-                <Route path={ERoutes.ALBUMS_NEW} element={<NewAlbum />} />
-              </Route>
+                <Route path={ERoutes.ALBUMS} element={<ProtectedRoute element={Albums} />}>
+                  <Route path={ERoutes.ALBUMS_ID} element={<CurrentAlbum />} />
 
-              <Route path={ERoutes.NOT_EXIST} element={<Navigate to={ERoutes.ROOT} replace />} />
-            </Routes>
+                  <Route path={ERoutes.ALBUMS_NEW} element={<NewAlbum />} />
+                </Route>
+
+                <Route path={ERoutes.NOT_EXIST} element={<Navigate to={ERoutes.ROOT} replace />} />
+              </Routes>
+            </Container>
           </ThemeProvider>
         </HistoryRouter>
       </Provider>

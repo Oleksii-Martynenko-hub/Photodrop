@@ -5,6 +5,7 @@ import logger from 'redux-logger'
 
 import MainApi from 'api/MainApi'
 import ProtectedApi from 'api/ProtectedApi'
+import { APIError } from 'api/ErrorHandler'
 
 import loginReducer from 'store/login/reducers'
 import userReducer from 'store/user/reducers'
@@ -18,7 +19,8 @@ const mainApi = MainApi.getInstance()
 const protectedApi = ProtectedApi.getInstance()
 
 export type ThunkExtra = {
-  getState: () => RootState
+  state: RootState
+  rejectValue: APIError
   extra: {
     mainApi: MainApi
     protectedApi: ProtectedApi

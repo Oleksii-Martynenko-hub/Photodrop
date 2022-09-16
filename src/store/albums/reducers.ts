@@ -1,16 +1,10 @@
 import { createSlice } from '@reduxjs/toolkit'
 
-import { APIError, APIStatus } from 'api/MainApi'
+import { APIError } from 'api/ErrorHandler'
+import { APIStatus } from 'api/MainApi'
+import { AlbumData } from 'api/ProtectedApi'
 
 import { getAlbumsAsync } from 'store/albums/actions'
-
-export interface AlbumData {
-  id: number
-  name: string
-  location: string
-  date: string
-  photographerId: number
-}
 
 interface AlbumsState {
   albums: AlbumData[]
@@ -30,7 +24,9 @@ const initialState: AlbumsState = {
 export const albumsSlice = createSlice({
   name: 'albums',
   initialState,
-  reducers: {},
+  reducers: {
+    clearAlbumsState: () => initialState,
+  },
   extraReducers: (builder) => {
     builder.addCase(getAlbumsAsync.pending, (state) => {
       state.status = APIStatus.PENDING
@@ -46,6 +42,6 @@ export const albumsSlice = createSlice({
   },
 })
 
-// export const {  } = albumsSlice.actions
+export const { clearAlbumsState } = albumsSlice.actions
 
 export default albumsSlice.reducer

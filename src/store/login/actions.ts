@@ -1,11 +1,13 @@
 import { createAsyncThunk } from '@reduxjs/toolkit'
 
-import { getExceptionPayload } from 'api/MainApi'
+import { LoginData, TokensData } from 'api/MainApi'
+import { getExceptionPayload } from 'api/ErrorHandler'
 
 import { ThunkExtra } from 'store'
-import { LoginData } from 'store/login/reducers'
+import { clearUserState } from 'store/user/reducers'
+import { clearAlbumsState } from 'store/albums/reducers'
+import { clearLoginState, clearToken } from 'store/login/reducers'
 
-import { TokensData } from 'utils/local-storage/tokens'
 
 export const loginAsync = createAsyncThunk<TokensData, LoginData, ThunkExtra>(
   'login/loginAsync',
@@ -14,6 +16,22 @@ export const loginAsync = createAsyncThunk<TokensData, LoginData, ThunkExtra>(
       const response = await mainApi.postLogin(loginData)
 
       return response
+    } catch (error) {
+      return rejectWithValue(getExceptionPayload(error))
+    }
+  },
+)
+
+export const logoutAsync = createAsyncThunk(
+  'login/logoutAsync',
+  async (_, { rejectWithValue, dispatch }) => {
+    try {
+      dispatch(clearToken())
+      dispatch(clearLoginState())
+      dispatch(clearUserState())
+      dispatch(clearAlbumsState())
+
+      return new Promise(() => ({}))
     } catch (error) {
       return rejectWithValue(getExceptionPayload(error))
     }

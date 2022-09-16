@@ -1,9 +1,9 @@
 import { createSelector, Selector } from 'reselect'
 
 import { APIStatus } from 'api/MainApi'
+import { AlbumData } from 'api/ProtectedApi'
 
 import { RootState } from 'store'
-import { AlbumData } from 'store/albums/reducers'
 
 const selectAlbumsReducer = (state: RootState) => state.albumsReducer
 

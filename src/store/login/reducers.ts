@@ -1,15 +1,13 @@
 import { createSlice } from '@reduxjs/toolkit'
 
-import { APIError, APIStatus } from 'api/MainApi'
+import { APIError } from 'api/ErrorHandler'
+import { APIStatus } from 'api/MainApi'
 
 import { loginAsync } from 'store/login/actions'
 
 import Tokens from 'utils/local-storage/tokens'
 
-export interface LoginData {
-  login: string
-  password: string
-}
+
 
 interface LoginState {
   isLoggedIn: boolean
@@ -30,13 +28,11 @@ export const loginSlice = createSlice({
   name: 'login',
   initialState,
   reducers: {
-    logout: (state) => {
-      state.isLoggedIn = false
-      state.status = APIStatus.IDLE
+    clearToken: () => {
       const tokens = Tokens.getInstance()
-
       tokens.clearTokens()
     },
+    clearLoginState: () => initialState,
     checkToken: (state) => {
       const tokens = Tokens.getInstance()
 
@@ -59,12 +55,14 @@ export const loginSlice = createSlice({
       state.status = APIStatus.FULFILLED
     })
     builder.addCase(loginAsync.rejected, (state, action) => {
-      state.error = { message: action.error.message || '', code: +(action.error.code || '0') }
-      state.status = APIStatus.REJECTED
+      if (action.payload) {
+        state.error = action.payload
+        state.status = APIStatus.REJECTED
+      }
     })
   },
 })
 
-export const { logout, checkToken } = loginSlice.actions
+export const { clearToken, clearLoginState, checkToken } = loginSlice.actions
 
 export default loginSlice.reducer

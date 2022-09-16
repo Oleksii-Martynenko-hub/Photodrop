@@ -13,7 +13,6 @@ abstract class HttpClient {
       baseURL,
       headers: {
         'Content-Type': 'application/json',
-        // 'x-api-key': process.env.X_API_KEY,
       },
     })
 
