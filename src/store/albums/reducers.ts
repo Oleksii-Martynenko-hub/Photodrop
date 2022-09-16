@@ -3,6 +3,7 @@ import { createSlice } from '@reduxjs/toolkit'
 import { APIError } from 'api/ErrorHandler'
 import { APIStatus } from 'api/MainApi'
 import { AlbumData } from 'api/ProtectedApi'
+import { toast } from 'react-toastify'
 import { pendingCase, rejectedCase } from 'store'
 
 import { getAlbumsAsync, postCreateAlbumAsync } from 'store/albums/actions'
@@ -22,6 +23,8 @@ const initialState: AlbumsState = {
   },
 }
 
+const getAlbumsToastId = 'getAlbumsToastId'
+
 export const albumsSlice = createSlice({
   name: 'albums',
   initialState,
@@ -29,11 +32,31 @@ export const albumsSlice = createSlice({
     clearAlbumsState: () => initialState,
   },
   extraReducers: (builder) => {
-    builder.addCase(getAlbumsAsync.pending, pendingCase())
+    builder.addCase(
+      getAlbumsAsync.pending,
+      pendingCase(() =>
+        toast.loading('Loading albums...', {
+          toastId: getAlbumsToastId,
+          updateId: getAlbumsToastId,
+          position: 'top-center',
+          hideProgressBar: true,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        }),
+      ),
+    )
     builder.addCase(getAlbumsAsync.rejected, rejectedCase())
     builder.addCase(getAlbumsAsync.fulfilled, (state, action) => {
       state.status = APIStatus.FULFILLED
       state.albums = action.payload
+      toast.update(getAlbumsToastId, {
+        render: 'Albums successfully loaded',
+        type: 'success',
+        isLoading: false,
+        autoClose: 1500,
+      })
     })
 
     builder.addCase(postCreateAlbumAsync.pending, pendingCase())

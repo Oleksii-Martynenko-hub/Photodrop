@@ -153,7 +153,7 @@ const Login: FC = () => {
                 error={!loginValidation.isValid}
                 fullWidth
                 value={login}
-                onChange={setLogin}
+                onChange={setLogin.onChange}
                 InputProps={{
                   sx: {
                     backgroundColor: '#F4F4F4',
@@ -169,7 +169,7 @@ const Login: FC = () => {
                 <OutlinedInput
                   placeholder='Password'
                   value={password}
-                  onChange={setPassword}
+                  onChange={setPassword.onChange}
                   type={isShowPassword ? 'text' : 'password'}
                   error={!passwordValidation.isValid}
                   endAdornment={

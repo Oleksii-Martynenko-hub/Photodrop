@@ -1,21 +1,34 @@
-import { FC, useEffect, useState } from 'react'
+import { FC, useState } from 'react'
+import { useNavigate } from 'react-router'
 import { useDispatch, useSelector } from 'react-redux'
-import { Button, Grid, TextField, TextFieldProps, Typography } from '@mui/material'
+import {
+  CircularProgress,
+  FormHelperText,
+  Grid,
+  TextField,
+  TextFieldProps,
+  Typography,
+} from '@mui/material'
+
+import { LoadingButton } from '@mui/lab'
+import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment'
+import { MobileDatePicker } from '@mui/x-date-pickers/MobileDatePicker'
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { motion } from 'framer-motion'
-import moment, { Moment } from 'moment'
+import { Moment } from 'moment'
+import { toast } from 'react-toastify'
 
 import { APIStatus } from 'api/MainApi'
 
-import { useInput } from '../components/hooks/useInput'
+import { selectStatus } from 'store/albums/selectors'
+import { postCreateAlbumAsync } from 'store/albums/actions'
 
-import { selectStatus } from 'store/login/selectors'
-
-import { MobileDatePicker } from '@mui/x-date-pickers/MobileDatePicker'
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
-import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment'
+import { useInput } from 'components/hooks/useInput'
+import { useDidMountEffect } from 'components/hooks/useDidMountEffect'
 
 const NewAlbum: FC = () => {
   const dispatch = useDispatch()
+  const navigate = useNavigate()
 
   const status = useSelector(selectStatus)
 
@@ -23,11 +36,36 @@ const NewAlbum: FC = () => {
   const [location, setLocation] = useInput('')
   const [date, setDate] = useState<Moment | null>(null)
 
-  const handleOnChangeDate = (value: Moment | null) => {
-    setDate(value)
-  }
-  const handleOnClickSave = () => {
-    console.log('🚀 ~ handleOnClickSave ~ handleOnClickSave', handleOnClickSave)
+  const [validation, setValidation] = useState({ isValid: true, message: '' })
+
+  useDidMountEffect(() => {
+    setValidation({ isValid: true, message: '' })
+  }, [name, location, date])
+
+  const handleOnChangeDate = (value: Moment | null) => setDate(value)
+
+  const handleOnClickSave = async () => {
+    if (!name || !location || !date) {
+      return setValidation({ isValid: false, message: 'All of the fields are required.' })
+    }
+
+    await dispatch(postCreateAlbumAsync({ name, location, date: date.utc().format() }))
+
+    setName.setState('')
+    setLocation.setState('')
+    setDate(null)
+    setValidation({ isValid: true, message: '' })
+
+    toast.success(`Album "${name}" successfully created`, {
+      onClose: () => navigate(-1),
+      position: 'top-center',
+      autoClose: 1500,
+      hideProgressBar: true,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+    })
   }
 
   return (
@@ -48,9 +86,10 @@ const NewAlbum: FC = () => {
           <Grid item xs={12} md={6}>
             <TextField
               placeholder='Name'
+              error={!validation.isValid}
               fullWidth
               value={name}
-              onChange={setName}
+              onChange={setName.onChange}
               InputProps={{
                 sx: {
                   backgroundColor: '#F4F4F4',
@@ -64,9 +103,10 @@ const NewAlbum: FC = () => {
           <Grid item xs={12} md={6}>
             <TextField
               placeholder='Location'
+              error={!validation.isValid}
               fullWidth
               value={location}
-              onChange={setLocation}
+              onChange={setLocation.onChange}
               InputProps={{
                 sx: {
                   backgroundColor: '#F4F4F4',
@@ -85,6 +125,7 @@ const NewAlbum: FC = () => {
                 renderInput={(params: JSX.IntrinsicAttributes & TextFieldProps) => (
                   <TextField
                     {...params}
+                    error={!validation.isValid}
                     placeholder='Date'
                     fullWidth
                     InputProps={{
@@ -101,14 +142,28 @@ const NewAlbum: FC = () => {
           </Grid>
 
           <Grid item xs={10} md={8}>
-            <Button
+            <LoadingButton
+              loading={status === APIStatus.PENDING}
+              loadingIndicator={
+                <CircularProgress
+                  size={18}
+                  sx={{ color: 'inherit', position: 'absolute', top: '-9px', left: '2px' }}
+                />
+              }
+              loadingPosition='end'
               variant='contained'
               fullWidth
-              sx={{ borderRadius: '50px', height: '50px' }}
+              sx={{ borderRadius: '50px', height: '50px', marginBottom: '10px' }}
               onClick={handleOnClickSave}
             >
               Save
-            </Button>
+            </LoadingButton>
+
+            {!validation.isValid && validation.message && (
+              <FormHelperText error={!validation.isValid} sx={{ textAlign: 'center' }}>
+                {validation.message}
+              </FormHelperText>
+            )}
           </Grid>
         </Grid>
       </Grid>

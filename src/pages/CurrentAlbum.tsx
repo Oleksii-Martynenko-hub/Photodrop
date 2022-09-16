@@ -9,7 +9,6 @@ const CurrentAlbum: FC = () => {
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-      {process.env.NODE_ENV}
       CurrentAlbum {params.id}
     </motion.div>
   )

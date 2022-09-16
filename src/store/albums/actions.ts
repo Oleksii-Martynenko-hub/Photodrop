@@ -30,9 +30,8 @@ export const postCreateAlbumAsync = createAsyncThunk<
   ThunkExtra
 >(
   'albums/postCreateAlbumAsync',
-  async (albumData, { rejectWithValue, extra: { protectedApi }, getState, dispatch }) => {
+  async (albumData, { rejectWithValue, extra: { protectedApi }, getState }) => {
     try {
-      await dispatch(setUserData())
       const { id } = getState().userReducer
 
       if (!id) throw new Error('Error getAlbumsAsync: photographerId is missing')
