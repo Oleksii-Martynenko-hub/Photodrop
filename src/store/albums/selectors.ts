@@ -15,3 +15,11 @@ export const selectStatus: Selector<RootState, APIStatus> = createSelector(
   selectAlbumsReducer,
   ({ status }) => status,
 )
+export const selectErrorMessage: Selector<RootState, string> = createSelector(
+  selectAlbumsReducer,
+  ({ error }) => error.message,
+)
+export const selectStatusCode: Selector<RootState, number> = createSelector(
+  selectAlbumsReducer,
+  ({ error }) => error.code,
+)

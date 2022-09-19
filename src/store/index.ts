@@ -32,15 +32,18 @@ export const apis = {
   protectedApi,
 }
 
+type CaseCallback = (state: CommonState, action: { payload: APIError | undefined }) => void
+
 export const pendingCase = (callback?: VoidFunction) => (state: CommonState) => {
   state.status = APIStatus.PENDING
   if (callback) callback()
 }
 export const rejectedCase =
-  (callback?: VoidFunction) => (state: CommonState, action: { payload: APIError | undefined }) => {
+  (callback?: CaseCallback) => (state: CommonState, action: { payload: APIError | undefined }) => {
     if (action.payload) state.error = action.payload
+
     state.status = APIStatus.REJECTED
-    if (callback) callback()
+    if (callback) callback(state, action)
   }
 
 export const store = configureStore({

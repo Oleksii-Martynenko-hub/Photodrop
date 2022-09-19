@@ -36,7 +36,7 @@ abstract class HttpClientProtected extends HttpClient {
 
   private handleResponseError = async (e: any): Promise<any> => {
     const status = e.response ? e.response.status : null
-    const msg = e?.response?.data?.result?.message
+    const msg = e?.response?.data?.message
 
     const tokens = Tokens.getInstance()
 
@@ -54,11 +54,11 @@ abstract class HttpClientProtected extends HttpClient {
       } catch (_) {
         tokens.clearTokens()
 
-        return Promise.reject(e)
+        return Promise.reject(e.response)
       }
     }
 
-    return Promise.reject(e)
+    return Promise.reject(e.response)
   }
 }
 

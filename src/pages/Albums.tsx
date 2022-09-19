@@ -8,7 +8,13 @@ import { motion } from 'framer-motion'
 import { APIStatus } from 'api/MainApi'
 
 import { getAlbumsAsync } from 'store/albums/actions'
-import { selectAlbums, selectStatus } from 'store/albums/selectors'
+import {
+  selectAlbums,
+  selectErrorMessage,
+  selectStatus,
+  selectStatusCode,
+} from 'store/albums/selectors'
+import { logoutAsync } from 'store/login/actions'
 
 import useToggle from 'components/hooks/useToggle'
 
@@ -20,6 +26,9 @@ const Albums: FC = () => {
 
   const albums = useSelector(selectAlbums)
   const status = useSelector(selectStatus)
+  const errorMsg = useSelector(selectErrorMessage)
+  const errorCode = useSelector(selectStatusCode)
+
   const [isShowOutlet, setIsShowOutlet] = useToggle(false)
 
   useEffect(() => {
@@ -29,6 +38,11 @@ const Albums: FC = () => {
   useEffect(() => {
     if (status === APIStatus.IDLE) {
       dispatch(getAlbumsAsync())
+    }
+    if (status === APIStatus.REJECTED) {
+      if (errorCode === 401 || errorMsg === 'Not authorized') {
+        dispatch(logoutAsync())
+      }
     }
   }, [albums, status])
 

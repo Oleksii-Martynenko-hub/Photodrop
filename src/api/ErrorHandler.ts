@@ -21,23 +21,19 @@ export const getExceptionPayload = (ex: unknown): APIError => {
     return InternalError
   }
 
-  const exception = ex as { response: ErrorResponse }
+  const res = ex as ErrorResponse
 
-  if (ex.hasOwnProperty('response') && typeof exception.response === 'object') {
-    const res = exception.response as ErrorResponse
-
-    if (
-      res.hasOwnProperty('data') &&
-      typeof res.data === 'object' &&
-      res.data.hasOwnProperty('message') &&
-      typeof res.data.message === 'string' &&
-      res.hasOwnProperty('status') &&
-      typeof res.status === 'number'
-    ) {
-      return {
-        message: res.data.message,
-        code: res.status,
-      }
+  if (
+    res.hasOwnProperty('data') &&
+    typeof res.data === 'object' &&
+    res.data.hasOwnProperty('message') &&
+    typeof res.data.message === 'string' &&
+    res.hasOwnProperty('status') &&
+    typeof res.status === 'number'
+  ) {
+    return {
+      message: res.data.message,
+      code: res.status,
     }
   }
 
