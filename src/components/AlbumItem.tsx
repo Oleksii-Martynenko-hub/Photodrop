@@ -1,17 +1,12 @@
-import { FC, useEffect, useState } from 'react'
-import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { useDispatch, useSelector } from 'react-redux'
-import { Grid, Paper, Skeleton, SxProps, Theme, Typography } from '@mui/material'
+import { FC, useState } from 'react'
+import { Link } from 'react-router-dom'
+import { Grid, Paper, Typography } from '@mui/material'
 import moment from 'moment'
-
-import { logoutAsync } from 'store/login/actions'
-import { selectIsLoggedIn } from 'store/login/selectors'
-
-import useToggle from 'components/hooks/useToggle'
+import { motion } from 'framer-motion'
+import styled from 'styled-components'
 
 import { AlbumData } from 'api/ProtectedApi'
-import styled from 'styled-components'
-import { motion } from 'framer-motion'
+import { Image } from 'components/Image'
 
 interface Props {
   album: AlbumData
@@ -26,16 +21,20 @@ const AlbumItem: FC<Props> = ({ album, index }) => {
   return (
     <Grid item xs={12} md={6}>
       <motion.div
-        // style={{ maxWidth: '100%' }}
         initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
+        animate={{ opacity: 1, transition: { delay: index * 0.05 } }}
         exit={{ opacity: 0 }}
       >
         <Paper variant='elevation' sx={{ padding: '8px', display: 'flex' }}>
           <LinkStyled to={`${id}`}>
             <Grid container spacing={1} wrap='nowrap'>
               <Grid item>
-                <Icon src={`http://placeimg.com/8${index}/6${index}/any`} />
+                <Image
+                  width={80}
+                  height={60}
+                  src={`http://placeimg.com/8${index}/6${index}/any`}
+                  // defaultImage='/favicon-32x32.png'
+                />
               </Grid>
 
               <Grid item sx={{ flex: 1, minWidth: 0 }}>
@@ -73,13 +72,6 @@ const LinkStyled = styled(Link)`
   width: 100%;
 `
 
-const Icon = styled.img`
-  width: 80px;
-  height: 60px;
-  object-fit: cover;
-  border-radius: 4px;
-  display: block;
-`
 const Name = styled(Typography)`
   color: #090909;
   line-height: 1.1;

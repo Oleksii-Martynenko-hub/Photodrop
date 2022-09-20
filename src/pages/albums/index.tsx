@@ -83,7 +83,7 @@ const Albums: FC = () => {
 
               <Grid container spacing={2}>
                 {status === APIStatus.PENDING ? (
-                  [...Array(10)].map((_, i) => <AlbumItemSkeleton key={i} />)
+                  [...Array(10)].map((_, i) => <AlbumItemSkeleton key={i} index={i} />)
                 ) : albums.length ? (
                   albums.map(({ id, ...album }, i) => (
                     <AlbumItem key={id} album={{ id, ...album }} index={i} />

@@ -2,13 +2,12 @@ import { FC } from 'react'
 import { Grid, Paper, Skeleton } from '@mui/material'
 import { motion } from 'framer-motion'
 
-const AlbumItemSkeleton: FC = () => {
+const AlbumItemSkeleton: FC<{ index: number }> = ({ index }) => {
   return (
     <Grid item xs={12} md={6}>
       <motion.div
-        // style={{ maxWidth: '100%' }}
         initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
+        animate={{ opacity: 1, transition: { delay: index * 0.015 } }}
         exit={{ opacity: 0 }}
       >
         <Paper variant='elevation' sx={{ padding: '8px', display: 'flex' }}>
