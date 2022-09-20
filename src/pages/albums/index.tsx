@@ -55,7 +55,12 @@ const Albums: FC = () => {
         {isShowOutlet ? (
           <Outlet />
         ) : (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+          <motion.div
+            style={{ maxWidth: '100%' }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
             <Grid container alignItems='start'>
               <Grid item xs>
                 <Typography variant='h3' gutterBottom>
@@ -76,9 +81,9 @@ const Albums: FC = () => {
                 </motion.div>
               </Link>
 
-              <Grid container spacing={2} direction='column'>
+              <Grid container spacing={2}>
                 {status === APIStatus.PENDING ? (
-                  [1, 2, 3, 4, 5, 6, 7].map((i) => <AlbumItemSkeleton key={i} />)
+                  [...Array(10)].map((_, i) => <AlbumItemSkeleton key={i} />)
                 ) : albums.length ? (
                   albums.map(({ id, ...album }, i) => (
                     <AlbumItem key={id} album={{ id, ...album }} index={i} />

@@ -125,106 +125,109 @@ const Login: FC = () => {
 
   return (
     <>
-      {isLoggedIn && <Navigate to={ERoutes.ALBUMS} replace />}
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-        <Grid container justifyContent='center' sx={{ paddingTop: { xs: 6, md: 9 } }}>
-          <Grid
-            container
-            spacing={{ xs: 2, md: 3 }}
-            justifyContent='center'
-            sx={{ flex: { xs: '0 1 400px', md: '0 0 600px' } }}
-          >
-            <Grid item xs={12} md={12}>
-              <Typography variant='h2' align='center' gutterBottom>
-                Login
-              </Typography>
-            </Grid>
+      {isLoggedIn ? (
+        <Navigate to={ERoutes.ALBUMS} replace />
+      ) : (
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+          <Grid container justifyContent='center' sx={{ paddingTop: { xs: 6, md: 9 } }}>
+            <Grid
+              container
+              spacing={{ xs: 2, md: 3 }}
+              justifyContent='center'
+              sx={{ flex: { xs: '0 1 400px', md: '0 0 600px' } }}
+            >
+              <Grid item xs={12} md={12}>
+                <Typography variant='h2' align='center' gutterBottom>
+                  Login
+                </Typography>
+              </Grid>
 
-            <Grid item xs={12} md={12}>
-              <Typography variant='h6' align='center'>
-                Enter your name and password
-              </Typography>
-            </Grid>
+              <Grid item xs={12} md={12}>
+                <Typography variant='h6' align='center'>
+                  Enter your name and password
+                </Typography>
+              </Grid>
 
-            <Grid item xs={12} md={6}>
-              <TextField
-                placeholder='Login'
-                required
-                error={!loginValidation.isValid}
-                fullWidth
-                value={login}
-                onChange={setLogin.onChange}
-                InputProps={{
-                  sx: {
-                    backgroundColor: '#F4F4F4',
-                    borderRadius: '10px',
-                    height: '40px',
-                  },
-                }}
-              />
-            </Grid>
-
-            <Grid item xs={12} md={6}>
-              <FormControl fullWidth>
-                <OutlinedInput
-                  placeholder='Password'
-                  value={password}
-                  onChange={setPassword.onChange}
-                  type={isShowPassword ? 'text' : 'password'}
-                  error={!passwordValidation.isValid}
-                  endAdornment={
-                    <InputAdornment position='end'>
-                      <IconButton
-                        aria-label='toggle password visibility'
-                        onClick={setShowPassword}
-                        onMouseDown={setShowPassword}
-                        edge='end'
-                      >
-                        {isShowPassword ? <VisibilityOff /> : <Visibility />}
-                      </IconButton>
-                    </InputAdornment>
-                  }
-                  sx={{
-                    backgroundColor: '#F4F4F4',
-                    borderRadius: '10px',
-                    height: '40px',
+              <Grid item xs={12} md={6}>
+                <TextField
+                  placeholder='Login'
+                  required
+                  error={!loginValidation.isValid}
+                  fullWidth
+                  value={login}
+                  onChange={setLogin.onChange}
+                  InputProps={{
+                    sx: {
+                      backgroundColor: '#F4F4F4',
+                      borderRadius: '10px',
+                      height: '40px',
+                    },
                   }}
                 />
-              </FormControl>
-            </Grid>
+              </Grid>
 
-            <Grid item xs={10} md={8}>
-              <LoadingButton
-                loading={status === APIStatus.PENDING}
-                loadingIndicator={
-                  <CircularProgress
-                    size={18}
-                    sx={{ color: 'inherit', position: 'absolute', top: '-9px', left: '2px' }}
+              <Grid item xs={12} md={6}>
+                <FormControl fullWidth>
+                  <OutlinedInput
+                    placeholder='Password'
+                    value={password}
+                    onChange={setPassword.onChange}
+                    type={isShowPassword ? 'text' : 'password'}
+                    error={!passwordValidation.isValid}
+                    endAdornment={
+                      <InputAdornment position='end'>
+                        <IconButton
+                          aria-label='toggle password visibility'
+                          onClick={setShowPassword}
+                          onMouseDown={setShowPassword}
+                          edge='end'
+                        >
+                          {isShowPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    }
+                    sx={{
+                      backgroundColor: '#F4F4F4',
+                      borderRadius: '10px',
+                      height: '40px',
+                    }}
                   />
-                }
-                loadingPosition='end'
-                variant='contained'
-                fullWidth
-                sx={{ borderRadius: '50px', height: '50px', marginBottom: '10px' }}
-                onClick={handleOnClickLogin}
-              >
-                Login
-              </LoadingButton>
+                </FormControl>
+              </Grid>
 
-              {!loginValidation.isValid && loginValidation.message && (
-                <FormHelperText error={!loginValidation.isValid} sx={{ textAlign: 'center' }}>
-                  {loginValidation.message}
-                </FormHelperText>
-              )}
-              {!passwordValidation.isValid && passwordValidation.message && (
-                <FormHelperText error={!passwordValidation.isValid} sx={{ textAlign: 'center' }}>
-                  {passwordValidation.message}
-                </FormHelperText>
-              )}
+              <Grid item xs={10} md={8}>
+                <LoadingButton
+                  loading={status === APIStatus.PENDING}
+                  loadingIndicator={
+                    <CircularProgress
+                      size={18}
+                      sx={{ color: 'inherit', position: 'absolute', top: '-9px', left: '2px' }}
+                    />
+                  }
+                  loadingPosition='end'
+                  variant='contained'
+                  fullWidth
+                  sx={{ borderRadius: '50px', height: '50px', marginBottom: '10px' }}
+                  onClick={handleOnClickLogin}
+                >
+                  Login
+                </LoadingButton>
+
+                {!loginValidation.isValid && loginValidation.message && (
+                  <FormHelperText error={!loginValidation.isValid} sx={{ textAlign: 'center' }}>
+                    {loginValidation.message}
+                  </FormHelperText>
+                )}
+                {!passwordValidation.isValid && passwordValidation.message && (
+                  <FormHelperText error={!passwordValidation.isValid} sx={{ textAlign: 'center' }}>
+                    {passwordValidation.message}
+                  </FormHelperText>
+                )}
+              </Grid>
             </Grid>
           </Grid>
-        </Grid>
-      </motion.div>
+        </motion.div>
+      )}
     </>
   )
 }

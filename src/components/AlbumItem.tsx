@@ -11,6 +11,7 @@ import useToggle from 'components/hooks/useToggle'
 
 import { AlbumData } from 'api/ProtectedApi'
 import styled from 'styled-components'
+import { motion } from 'framer-motion'
 
 interface Props {
   album: AlbumData
@@ -23,32 +24,43 @@ const AlbumItem: FC<Props> = ({ album, index }) => {
   const [formattedDate] = useState(moment(date).format('DD.MM.YYYY HH:mm'))
 
   return (
-    <Grid item xs={12}>
-      <Paper variant='elevation' sx={{ padding: '8px', display: 'flex' }}>
-        <LinkStyled to={`${id}`}>
-          <Grid container spacing={1}>
-            <Grid item>
-              <Icon src={`http://placeimg.com/8${index}/6${index}/any`} />
-            </Grid>
+    <Grid item xs={12} md={6}>
+      <motion.div
+        // style={{ maxWidth: '100%' }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+      >
+        <Paper variant='elevation' sx={{ padding: '8px', display: 'flex' }}>
+          <LinkStyled to={`${id}`}>
+            <Grid container spacing={1} wrap='nowrap'>
+              <Grid item>
+                <Icon src={`http://placeimg.com/8${index}/6${index}/any`} />
+              </Grid>
 
-            <Grid item xs>
-              <Grid container direction='column' spacing={1}>
-                <Grid item>
-                  <Name variant='h6'>{name}</Name>
-                </Grid>
+              <Grid item sx={{ flex: 1, minWidth: 0 }}>
+                <Grid container spacing={1}>
+                  <Grid item xs={12} sx={{ minWidth: 0 }}>
+                    <Name noWrap variant='h6'>
+                      {name}
+                    </Name>
+                  </Grid>
 
-                <Grid item>
-                  <Location variant='body1'>{albumLocation}</Location>
-                </Grid>
+                  <Grid item xs={12} sx={{ minWidth: 0 }}>
+                    <Location noWrap variant='body1'>
+                      {albumLocation}
+                    </Location>
+                  </Grid>
 
-                <Grid item alignSelf='flex-end'>
-                  <Date variant='caption'>{formattedDate}</Date>
+                  <Grid item xs={12} sx={{ minWidth: 0 }}>
+                    <Date variant='caption'>{formattedDate}</Date>
+                  </Grid>
                 </Grid>
               </Grid>
             </Grid>
-          </Grid>
-        </LinkStyled>
-      </Paper>
+          </LinkStyled>
+        </Paper>
+      </motion.div>
     </Grid>
   )
 }
@@ -73,12 +85,18 @@ const Name = styled(Typography)`
   line-height: 1.1;
   font-weight: 600;
   font-size: 17px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
 `
 
 const Location = styled(Typography)`
   color: #141414;
   line-height: 1.2;
   font-size: 14px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
 `
 
 const Date = styled(Typography)`
@@ -87,4 +105,5 @@ const Date = styled(Typography)`
   font-size: 11px;
   margin-bottom: -5px;
   display: block;
+  text-align: right;
 `
