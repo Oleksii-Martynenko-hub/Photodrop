@@ -19,7 +19,7 @@ import { motion } from 'framer-motion'
 import { APIStatus } from 'api/MainApi'
 
 import useToggle from 'components/hooks/useToggle'
-import { useInput } from '../components/hooks/useInput'
+import { useInput } from 'components/hooks/useInput'
 import { useDidMountEffect } from 'components/hooks/useDidMountEffect'
 
 import { loginAsync } from 'store/login/actions'

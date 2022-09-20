@@ -1,8 +1,9 @@
 import { FC, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Link, Outlet, useLocation } from 'react-router-dom'
-import { Fab, Grid, Typography } from '@mui/material'
+import { Button, Fab, Grid, Paper, Skeleton, Typography } from '@mui/material'
 import AddRoundedIcon from '@mui/icons-material/AddRounded'
+import InboxIcon from '@mui/icons-material/Inbox'
 import { motion } from 'framer-motion'
 
 import { APIStatus } from 'api/MainApi'
@@ -19,6 +20,9 @@ import { logoutAsync } from 'store/login/actions'
 import useToggle from 'components/hooks/useToggle'
 
 import { ERoutes } from 'pages/App'
+import AlbumItem from 'components/AlbumItem'
+import AlbumItemSkeleton from 'components/AlbumItemSkeleton'
+import EmptyAlbumList from 'components/EmptyAlbumList'
 
 const Albums: FC = () => {
   const dispatch = useDispatch()
@@ -72,11 +76,18 @@ const Albums: FC = () => {
                   </Fab>
                 </motion.div>
               </Link>
-              {albums.map(({ id, name }) => (
-                <Link key={id} to={`${id}`}>
-                  <Typography variant='h4'>{name}</Typography>
-                </Link>
-              ))}
+
+              <Grid container spacing={2} direction='column'>
+                {status === APIStatus.PENDING ? (
+                  [1, 2, 3, 4, 5, 6, 7].map((i) => <AlbumItemSkeleton key={i} />)
+                ) : !albums.length ? (
+                  albums.map(({ id, ...album }, i) => (
+                    <AlbumItem key={id} album={{ id, ...album }} index={i} />
+                  ))
+                ) : (
+                  <EmptyAlbumList />
+                )}
+              </Grid>
             </Grid>
           </motion.div>
         )}
