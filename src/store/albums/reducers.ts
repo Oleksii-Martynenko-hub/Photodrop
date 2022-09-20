@@ -46,14 +46,14 @@ export const albumsSlice = createSlice({
     )
     builder.addCase(getAlbumsAsync.fulfilled, (state, action) => {
       state.status = APIStatus.FULFILLED
-      state.albums = action.payload
+      state.albums = action.payload.reverse()
     })
 
     builder.addCase(postCreateAlbumAsync.pending, pendingCase())
     builder.addCase(postCreateAlbumAsync.rejected, rejectedCase())
     builder.addCase(postCreateAlbumAsync.fulfilled, (state, action) => {
       state.status = APIStatus.FULFILLED
-      state.albums.push(action.payload)
+      state.albums.unshift(action.payload)
     })
   },
 })
