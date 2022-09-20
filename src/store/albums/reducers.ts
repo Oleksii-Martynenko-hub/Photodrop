@@ -23,8 +23,6 @@ const initialState: AlbumsState = {
   },
 }
 
-const getAlbumsToastId = 'getAlbumsToastId'
-
 export const albumsSlice = createSlice({
   name: 'albums',
   initialState,
@@ -32,40 +30,23 @@ export const albumsSlice = createSlice({
     clearAlbumsState: () => initialState,
   },
   extraReducers: (builder) => {
-    builder.addCase(
-      getAlbumsAsync.pending,
-      pendingCase(() =>
-        toast.loading('Loading albums...', {
-          toastId: getAlbumsToastId,
-          position: 'top-center',
-          hideProgressBar: true,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-        }),
-      ),
-    )
+    builder.addCase(getAlbumsAsync.pending, pendingCase())
     builder.addCase(
       getAlbumsAsync.rejected,
       rejectedCase((_, action) => {
-        toast.update(getAlbumsToastId, {
-          render: action.payload?.message,
-          type: 'error',
-          isLoading: false,
+        toast.error(action.payload?.message, {
+          position: 'top-center',
+          hideProgressBar: true,
+          closeOnClick: true,
+          draggable: true,
           autoClose: 1500,
+          progress: undefined,
         })
       }),
     )
     builder.addCase(getAlbumsAsync.fulfilled, (state, action) => {
       state.status = APIStatus.FULFILLED
       state.albums = action.payload
-      toast.update(getAlbumsToastId, {
-        render: 'Albums successfully loaded',
-        type: 'success',
-        isLoading: false,
-        autoClose: 1500,
-      })
     })
 
     builder.addCase(postCreateAlbumAsync.pending, pendingCase())
