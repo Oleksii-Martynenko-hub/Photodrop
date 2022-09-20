@@ -2,9 +2,9 @@ import { createSlice } from '@reduxjs/toolkit'
 import jwt from 'jwt-decode'
 
 import { APIStatus } from 'api/MainApi'
+import { APIError } from 'api/ErrorHandler'
 
 import Tokens from 'utils/local-storage/tokens'
-import { APIError } from 'api/ErrorHandler'
 
 export type TokenDecodeData = {
   id: number

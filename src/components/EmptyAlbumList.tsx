@@ -1,20 +1,16 @@
 import { FC } from 'react'
+import { Link } from 'react-router-dom'
 import { Button, Grid, Typography } from '@mui/material'
 import InboxIcon from '@mui/icons-material/Inbox'
-import { ERoutes } from 'pages/App'
-import { Link } from 'react-router-dom'
 import styled from 'styled-components'
 import { motion } from 'framer-motion'
+
+import { ERoutes } from 'pages/App'
 
 const EmptyAlbumList: FC = () => {
   return (
     <Grid item xs={12}>
-      <motion.div
-        // style={{ maxWidth: '100%' }}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-      >
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
         <Grid container alignItems='center' direction='column' sx={{ py: 5 }}>
           <Grid item>
             <InboxIcon color='disabled' sx={{ fontSize: '34px' }} />

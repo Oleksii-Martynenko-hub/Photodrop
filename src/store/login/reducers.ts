@@ -2,8 +2,8 @@ import { createSlice } from '@reduxjs/toolkit'
 
 import { APIError } from 'api/ErrorHandler'
 import { APIStatus } from 'api/MainApi'
-import { pendingCase, rejectedCase } from 'store'
 
+import { pendingCase, rejectedCase } from 'store'
 import { loginAsync } from 'store/login/actions'
 
 import Tokens from 'utils/local-storage/tokens'

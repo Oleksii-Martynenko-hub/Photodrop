@@ -1,11 +1,11 @@
 import { createSlice } from '@reduxjs/toolkit'
+import { toast } from 'react-toastify'
 
 import { APIError } from 'api/ErrorHandler'
 import { APIStatus } from 'api/MainApi'
 import { AlbumData } from 'api/ProtectedApi'
-import { toast } from 'react-toastify'
-import { pendingCase, rejectedCase } from 'store'
 
+import { pendingCase, rejectedCase } from 'store'
 import { getAlbumsAsync, postCreateAlbumAsync } from 'store/albums/actions'
 
 export interface AlbumsState {

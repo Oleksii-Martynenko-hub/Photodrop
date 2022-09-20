@@ -11,9 +11,9 @@ import { selectIsLoggedIn } from 'store/login/selectors'
 import useToggle from 'components/hooks/useToggle'
 
 import { Logo } from 'components/Logo'
-import HideOnScroll from './HideOnScroll'
+import HideOnScroll from 'components/HideOnScroll'
 
-export const AppBar = (props: any) => {
+export const AppBar = () => {
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const location = useLocation()

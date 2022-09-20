@@ -1,8 +1,8 @@
 import React from 'react'
 import { Navigate } from 'react-router'
+import { useSelector } from 'react-redux'
 
 import { ERoutes } from 'pages/App'
-import { useSelector } from 'react-redux'
 import { selectIsLoggedIn } from 'store/login/selectors'
 
 interface Props {
