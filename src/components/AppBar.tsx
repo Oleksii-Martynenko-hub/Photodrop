@@ -11,8 +11,9 @@ import { selectIsLoggedIn } from 'store/login/selectors'
 import useToggle from 'components/hooks/useToggle'
 
 import { Logo } from 'components/Logo'
+import HideOnScroll from './HideOnScroll'
 
-export const AppBar = () => {
+export const AppBar = (props: any) => {
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const location = useLocation()
@@ -34,23 +35,28 @@ export const AppBar = () => {
 
   return (
     <>
-      <Bar color='default' sx={headerStyles}>
-        <Toolbar sx={headerStyles}>
-          {isShowBackButton && (
-            <IconButton onClick={handleOnClickBack} sx={{ position: 'absolute', left: '10px' }}>
-              <ArrowBackIosNewRoundedIcon sx={{ color: '#262626' }} />
-            </IconButton>
-          )}
+      <HideOnScroll>
+        <Bar color='default' sx={headerStyles}>
+          <Toolbar sx={headerStyles}>
+            {isShowBackButton && (
+              <IconButton onClick={handleOnClickBack} sx={{ position: 'absolute', left: '10px' }}>
+                <ArrowBackIosNewRoundedIcon sx={{ color: '#262626' }} />
+              </IconButton>
+            )}
 
-          <Logo />
+            <Logo />
 
-          {isLoggedIn && (
-            <IconButton onClick={handleOnClickLogout} sx={{ position: 'absolute', right: '10px' }}>
-              <LogoutIcon color='primary' />
-            </IconButton>
-          )}
-        </Toolbar>
-      </Bar>
+            {isLoggedIn && (
+              <IconButton
+                onClick={handleOnClickLogout}
+                sx={{ position: 'absolute', right: '10px' }}
+              >
+                <LogoutIcon color='primary' />
+              </IconButton>
+            )}
+          </Toolbar>
+        </Bar>
+      </HideOnScroll>
 
       <Toolbar sx={headerStyles} />
     </>
