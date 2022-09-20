@@ -9,7 +9,7 @@ import { GlobalStyles } from 'themes/global'
 import { store, history } from 'store'
 
 import { AppBar } from 'components/AppBar'
-import AnimatedRoutes from 'pages/AnimatedRoutes'
+import AnimatedRoutes from 'containers/AnimatedRoutes'
 
 import 'react-toastify/dist/ReactToastify.css'
 

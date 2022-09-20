@@ -2,12 +2,12 @@ import { FC } from 'react'
 import { Navigate, Route, Routes } from 'react-router'
 import { AnimatePresence } from 'framer-motion'
 
-import ProtectedRoute from 'components/ProtectedRoute'
+import ProtectedRoute from 'containers/ProtectedRoute'
 import { ERoutes } from 'pages/App'
-import Login from 'pages/Login'
-import Albums from 'pages/Albums'
-import CurrentAlbum from 'pages/CurrentAlbum'
-import NewAlbum from 'pages/NewAlbum'
+import Login from 'pages/login'
+import Albums from 'pages/albums'
+import CurrentAlbum from 'pages/albums/CurrentAlbum'
+import NewAlbum from 'pages/albums/NewAlbum'
 
 const AnimatedRoutes: FC = () => {
   return (
