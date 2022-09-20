@@ -1,9 +1,8 @@
 import { FC, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Link, Outlet, useLocation } from 'react-router-dom'
-import { Button, Fab, Grid, Paper, Skeleton, Typography } from '@mui/material'
+import { Fab, Grid, Typography } from '@mui/material'
 import AddRoundedIcon from '@mui/icons-material/AddRounded'
-import InboxIcon from '@mui/icons-material/Inbox'
 import { motion } from 'framer-motion'
 
 import { APIStatus } from 'api/MainApi'
@@ -80,7 +79,7 @@ const Albums: FC = () => {
               <Grid container spacing={2} direction='column'>
                 {status === APIStatus.PENDING ? (
                   [1, 2, 3, 4, 5, 6, 7].map((i) => <AlbumItemSkeleton key={i} />)
-                ) : !albums.length ? (
+                ) : albums.length ? (
                   albums.map(({ id, ...album }, i) => (
                     <AlbumItem key={id} album={{ id, ...album }} index={i} />
                   ))
