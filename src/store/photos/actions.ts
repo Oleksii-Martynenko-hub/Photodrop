@@ -56,7 +56,7 @@ export const postUploadPhotosAsync = createAsyncThunk<
   'albums/postUploadPhotosAsync',
   async (
     { fileList, people, albumId },
-    { rejectWithValue, extra: { protectedApi, storageApi }, getState },
+    { rejectWithValue, extra: { protectedApi, storageApi }, getState, dispatch },
   ) => {
     try {
       const { id } = getState().userReducer
@@ -99,6 +99,9 @@ export const postUploadPhotosAsync = createAsyncThunk<
         const bucket = await storageApi.postPhoto({ formData, onUploadProgress })
         console.log('🚀 ~ photos.forEach ~ bucket ' + i + ' file', bucket)
       })
+
+      const updatedAlbum = await dispatch(getPhotosAsync(albumId))
+      console.log('🚀 ~ UPDATED ALBUM', updatedAlbum)
 
       // return response
     } catch (error) {
