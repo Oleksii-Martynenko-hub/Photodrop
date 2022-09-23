@@ -1,4 +1,4 @@
-import { FC, useState } from 'react'
+import { FC, ImgHTMLAttributes, useState } from 'react'
 import styled from 'styled-components'
 
 import { motion } from 'framer-motion'
@@ -7,14 +7,14 @@ import PhotoCameraRoundedIcon from '@mui/icons-material/PhotoCameraRounded'
 
 import useToggle from 'components/hooks/useToggle'
 
-interface Props {
+interface Props extends ImgHTMLAttributes<HTMLImageElement> {
   src: string
   defaultImage?: string
   width?: number | string
   height?: number | string
 }
 
-export const Image: FC<Props> = ({ src, defaultImage, width, height }) => {
+export const Image: FC<Props> = ({ src, defaultImage, width, height, ...props }) => {
   const [initAnimation] = useState({ opacity: 0, scale: 0.9 })
   const [isOriginalLoaded, setIsOriginalLoaded] = useToggle(false)
 
@@ -39,6 +39,7 @@ export const Image: FC<Props> = ({ src, defaultImage, width, height }) => {
           isHide={!isOriginalLoaded}
           width={width}
           height={height}
+          {...props}
         />
       </motion.div>
 

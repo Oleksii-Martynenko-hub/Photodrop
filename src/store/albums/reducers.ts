@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { toast } from 'react-toastify'
 
-import { APIError } from 'api/ErrorHandler'
+import { ErrorObject } from 'api/ErrorHandler'
 import { APIStatus } from 'api/MainApi'
 import { AlbumData } from 'api/ProtectedApi'
 
@@ -11,16 +11,13 @@ import { getAlbumsAsync, postCreateAlbumAsync } from 'store/albums/actions'
 export interface AlbumsState {
   albums: AlbumData[]
   status: APIStatus
-  error: APIError
+  errors: ErrorObject[]
 }
 
 const initialState: AlbumsState = {
   albums: [],
   status: APIStatus.IDLE,
-  error: {
-    message: '',
-    code: 0,
-  },
+  errors: [],
 }
 
 export const albumsSlice = createSlice({
@@ -34,7 +31,7 @@ export const albumsSlice = createSlice({
     builder.addCase(
       getAlbumsAsync.rejected,
       rejectedCase((_, action) => {
-        toast.error(action.payload?.message, {
+        toast.error(action.payload?.[0].msg, {
           position: 'top-center',
           hideProgressBar: true,
           closeOnClick: true,

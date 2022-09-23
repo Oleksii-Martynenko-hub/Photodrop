@@ -13,13 +13,14 @@ export type AlbumData = {
 
 export interface CreateAlbumData extends Omit<AlbumData, 'id'> {}
 
+export type PhotosArray = [
+  { photographerId: number },
+  { albumId: number },
+  { photoName: string },
+  { 'Content-Type': string },
+]
 export interface PresignedPhotosPostBody {
-  photosArray: [
-    { photographerId: number },
-    { albumId: number },
-    { photoName: string },
-    { 'Content-Type': string },
-  ][]
+  photosArray: PhotosArray[]
   people: string[]
 }
 
@@ -67,6 +68,7 @@ class ProtectedApi extends HttpClientProtected {
     this.instance.post<AlbumData>('/create-album', newAlbum)
 
   // error messages
+
   // 1 - 'The album with this name already exist'
 
   public getAlbums = (photographerId: number) => {
@@ -80,7 +82,7 @@ class ProtectedApi extends HttpClientProtected {
   public postPresignedPostPhotos = (photosToUpload: PresignedPhotosPostBody) =>
     this.instance.post<PresignedPhotosPostResponse[]>('/s3-upload', photosToUpload)
 
-  public postPresignedGetPhotos = (photoKeys: { photoKet: string }[]) =>
+  public postPresignedGetPhotos = (photoKeys: { photoKey: string }[]) =>
     this.instance.post<string[]>('/get-signed-photos', photoKeys)
 
   public getAllPeople = () => this.instance.post<string[]>('/get-all-people')

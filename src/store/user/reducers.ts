@@ -2,7 +2,7 @@ import { createSlice } from '@reduxjs/toolkit'
 import jwt from 'jwt-decode'
 
 import { APIStatus } from 'api/MainApi'
-import { APIError } from 'api/ErrorHandler'
+import { ErrorObject } from 'api/ErrorHandler'
 
 import Tokens from 'utils/local-storage/tokens'
 
@@ -17,17 +17,14 @@ export interface UsersState {
   id: number | undefined
   login: string | undefined
   status: APIStatus
-  error: APIError
+  errors: ErrorObject[]
 }
 
 const initialState: UsersState = {
   id: undefined,
   login: undefined,
   status: APIStatus.IDLE,
-  error: {
-    message: '',
-    code: 0,
-  },
+  errors: [],
 }
 
 export const userSlice = createSlice({

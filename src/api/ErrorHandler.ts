@@ -1,22 +1,24 @@
 /* eslint-disable no-prototype-builtins */
-export type APIError = {
-  message: string
-  code: number
-}
-
 export type ErrorResponse = {
   data: {
-    message: string
+    errors: ErrorObject[]
   }
-  status: number
 }
 
-export const InternalError = {
-  message: 'Internal Error',
-  code: 500,
+export type ErrorObject = {
+  value?: string
+  msg: string
+  param?: string
+  location?: string
 }
 
-export const getExceptionPayload = (ex: unknown): APIError => {
+export const InternalError = [
+  {
+    msg: 'Internal Error',
+  },
+]
+
+export const getExceptionPayload = (ex: unknown): ErrorObject[] => {
   if (typeof ex !== 'object' || !ex) {
     return InternalError
   }
@@ -26,15 +28,10 @@ export const getExceptionPayload = (ex: unknown): APIError => {
   if (
     res.hasOwnProperty('data') &&
     typeof res.data === 'object' &&
-    res.data.hasOwnProperty('message') &&
-    typeof res.data.message === 'string' &&
-    res.hasOwnProperty('status') &&
-    typeof res.status === 'number'
+    res.data.hasOwnProperty('errors') &&
+    res.data.errors
   ) {
-    return {
-      message: res.data.message,
-      code: res.status,
-    }
+    return res.data.errors
   }
 
   return InternalError

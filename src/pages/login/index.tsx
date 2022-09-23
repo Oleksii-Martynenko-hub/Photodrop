@@ -24,12 +24,7 @@ import { useDidMountEffect } from 'components/hooks/useDidMountEffect'
 
 import { loginAsync } from 'store/login/actions'
 import { checkToken } from 'store/login/reducers'
-import {
-  selectErrorMessage,
-  selectIsLoggedIn,
-  selectStatus,
-  selectStatusCode,
-} from 'store/login/selectors'
+import { selectErrors, selectIsLoggedIn, selectStatus } from 'store/login/selectors'
 
 import { ERoutes } from 'pages/App'
 
@@ -38,8 +33,7 @@ const Login: FC = () => {
 
   const status = useSelector(selectStatus)
   const isLoggedIn = useSelector(selectIsLoggedIn)
-  const statusCode = useSelector(selectStatusCode)
-  const errorMessage = useSelector(selectErrorMessage)
+  const errors = useSelector(selectErrors)
 
   const [login, setLogin] = useInput('')
   const [password, setPassword] = useInput('')
@@ -55,21 +49,30 @@ const Login: FC = () => {
 
   useEffect(() => {
     if (status === APIStatus.REJECTED) {
-      if (errorMessage === 'User not found') {
-        return setLoginValidation({ isValid: false, message: 'User with this login not found.' })
-      }
+      if (errors.length) {
+        errors.forEach((error) => {
+          if (error.msg === 'User not found') {
+            setLoginValidation({
+              isValid: false,
+              message: 'User with this login not exist.',
+            })
+          }
 
-      if (errorMessage === 'Wrong password') {
-        return setPasswordValidation({ isValid: false, message: 'Password is incorrect.' })
+          if (error.msg === 'Wrong password') {
+            setPasswordValidation({ isValid: false, message: 'Password is not correct.' })
+          }
+        })
+
+        return
       }
 
       setLoginValidation({ isValid: false, message: '' })
       setPasswordValidation({
         isValid: false,
-        message: `Something went wrong, status code: ${statusCode}`,
+        message: 'Something went wrong.',
       })
     }
-  }, [status, errorMessage])
+  }, [status, errors])
 
   useDidMountEffect(() => {
     handleValidation('login')

@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit'
 
-import { APIError } from 'api/ErrorHandler'
+import { ErrorObject } from 'api/ErrorHandler'
 import { APIStatus } from 'api/MainApi'
 
 import { pendingCase, rejectedCase } from 'store'
@@ -11,16 +11,13 @@ import Tokens from 'utils/local-storage/tokens'
 export interface LoginState {
   isLoggedIn: boolean
   status: APIStatus
-  error: APIError
+  errors: ErrorObject[]
 }
 
 const initialState: LoginState = {
   isLoggedIn: false,
   status: APIStatus.IDLE,
-  error: {
-    message: '',
-    code: 0,
-  },
+  errors: [],
 }
 
 export const loginSlice = createSlice({
