@@ -7,6 +7,7 @@ import styled from 'styled-components'
 
 import { AlbumData } from 'api/ProtectedApi'
 import { Image } from 'components/Image'
+import { useMediaQuery } from 'components/hooks/useMediaQuery'
 
 interface Props {
   album: AlbumData
@@ -16,13 +17,20 @@ interface Props {
 const AlbumItem: FC<Props> = ({ album, index }) => {
   const { id, name, location: albumLocation, date } = album
 
+  const isMediumScreenSize = useMediaQuery.min(900)
+
   const [formattedDate] = useState(moment(date).format('DD.MM.YYYY HH:mm'))
+  const [delay] = useState(
+    isMediumScreenSize
+      ? [...Array(index + 1)].reduce((acc, _, n) => ((n + 1) % 2 == 0 ? acc : acc + 0.02), 0)
+      : (index + 1) * 0.02,
+  )
 
   return (
     <Grid item xs={12} md={6}>
       <motion.div
         initial={{ opacity: 0 }}
-        animate={{ opacity: 1, transition: { delay: index * 0.05 } }}
+        animate={{ opacity: 1, transition: { duration: 0.2, delay } }}
         exit={{ opacity: 0 }}
       >
         <Paper variant='elevation' sx={{ padding: '8px', display: 'flex' }}>
