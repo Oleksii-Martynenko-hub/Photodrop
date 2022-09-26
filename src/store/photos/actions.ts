@@ -1,27 +1,23 @@
 import { createAsyncThunk } from '@reduxjs/toolkit'
 
-import {
-  AlbumData,
-  CreateAlbumData,
-  GetPhotosResponse,
-  PhotosArray,
-  PhotosData,
-} from 'api/ProtectedApi'
+import { PhotosArray } from 'api/ProtectedApi'
 import { getExceptionPayload } from 'api/ErrorHandler'
 
 import { ThunkExtra } from 'store'
-import { setUserData } from 'store/user/reducers'
 import { Photos } from './reducers'
 
 export const getPhotosAsync = createAsyncThunk<Photos, number, ThunkExtra>(
-  'albums/getPhotosAsync',
+  'photos/getPhotosAsync',
   async (albumId, { rejectWithValue, extra: { protectedApi }, getState }) => {
     try {
       const { id } = getState().userReducer
 
       if (!id) throw new Error('Error getPhotosAsync: photographerId is missing')
 
-      const response = await protectedApi.getPhotos({ photographerId: id, albumId })
+      const response = await protectedApi.getPhotos({
+        photographerId: id,
+        albumId,
+      })
 
       const photoKeys = response.rows.map((photo) => ({ photoKey: photo.name }))
 
@@ -53,7 +49,7 @@ export const postUploadPhotosAsync = createAsyncThunk<
   },
   ThunkExtra
 >(
-  'albums/postUploadPhotosAsync',
+  'photos/postUploadPhotosAsync',
   async (
     { fileList, people, albumId },
     { rejectWithValue, extra: { protectedApi, storageApi }, getState, dispatch },
@@ -74,36 +70,35 @@ export const postUploadPhotosAsync = createAsyncThunk<
 
       const photos = await protectedApi.postPresignedPostPhotos({ photosArray, people })
 
-      photos.forEach(async ({ fields }, i) => {
+      const postToBucketPromises = photos.map(({ fields }, i) => {
         const formData = new FormData()
 
-        const fileIndex = Array.from(fileList).findIndex((file) => file.name === fields.key)
+        const fileIndex = Array.from(fileList).findIndex((file) => fields.key.includes(file.name))
 
         const file = fileList.item(fileIndex)
 
-        formData.append('file', file as Blob)
         formData.append('key', fields.key)
-        formData.append('bucket', fields.bucket)
-        formData.append('Policy', fields.Policy)
         formData.append('Content-Type', fields['Content-Type'])
-        formData.append('X-Amz-Date', fields['X-Amz-Date'])
+        formData.append('x-amz-meta-people', fields['x-amz-meta-people'])
+        formData.append('bucket', fields.bucket)
         formData.append('X-Amz-Algorithm', fields['X-Amz-Algorithm'])
         formData.append('X-Amz-Credential', fields['X-Amz-Credential'])
+        formData.append('X-Amz-Date', fields['X-Amz-Date'])
+        formData.append('Policy', fields.Policy)
         formData.append('X-Amz-Signature', fields['X-Amz-Signature'])
-        formData.append('x-amz-meta-people', fields['x-amz-meta-people'])
+        formData.append('file', file as Blob)
 
         const onUploadProgress = (e: ProgressEvent) => {
-          console.log(`onUploadProgress ${i} file: ${Math.round((100 * e.loaded) / e.total)}%`)
+          // console.log(`Upload Progress ${i + 1} file: ${Math.round((100 * e.loaded) / e.total)}%`)
         }
-
-        const bucket = await storageApi.postPhoto({ formData, onUploadProgress })
-        console.log('🚀 ~ photos.forEach ~ bucket ' + i + ' file', bucket)
+        return storageApi.postPhoto({ formData, onUploadProgress })
       })
 
-      const updatedAlbum = await dispatch(getPhotosAsync(albumId))
-      console.log('🚀 ~ UPDATED ALBUM', updatedAlbum)
+      const bucket = await Promise.all(postToBucketPromises)
 
-      // return response
+      setTimeout(async () => {
+        const updatedAlbum = await dispatch(getPhotosAsync(albumId))
+      }, 3000)
     } catch (error) {
       return rejectWithValue(getExceptionPayload(error))
     }

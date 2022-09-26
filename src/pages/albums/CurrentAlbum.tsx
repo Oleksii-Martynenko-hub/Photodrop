@@ -47,6 +47,9 @@ const CurrentAlbum: FC = () => {
       <p>
         <b>date:</b> {album?.date}
       </p>
+      <p>
+        <b>count:</b> {photos?.length}
+      </p>
       <hr />
       <input type='file' name='image' id='image' multiple onChange={onChange} />
       <hr />

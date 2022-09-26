@@ -53,6 +53,17 @@ export const photosSlice = createSlice({
     )
     builder.addCase(getPhotosAsync.fulfilled, (state, action) => {
       state.status = APIStatus.FULFILLED
+      if (state.photos.find((p) => p.albumId === action.payload.albumId)) {
+        state.photos = state.photos.map((p) =>
+          p.albumId === action.payload.albumId
+            ? {
+                ...p,
+                photosList: action.payload.photosList.reverse(),
+              }
+            : p,
+        )
+        return
+      }
       state.photos.push({
         ...action.payload,
         photosList: action.payload.photosList.reverse(),
