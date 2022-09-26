@@ -1,17 +1,22 @@
 import { FC, useEffect } from 'react'
 import { useParams } from 'react-router'
-import { Container } from '@mui/material'
+import { Container, ImageList, ImageListItem, useMediaQuery } from '@mui/material'
 import { motion } from 'framer-motion'
 import { useDispatch, useSelector } from 'react-redux'
 import { selectAlbumById } from 'store/albums/selectors'
 import { selectPhotosByAlbumId } from 'store/photos/selectors'
 import { getPhotosAsync, postUploadPhotosAsync } from 'store/photos/actions'
 import { Image } from 'components/Image'
+// import { useMediaQuery } from 'components/hooks/useMediaQuery'
 
 const CurrentAlbum: FC = () => {
   const { id } = useParams<{ id: string }>()
 
   const dispatch = useDispatch()
+
+  const sm = useMediaQuery('(min-width:600px)')
+  const md = useMediaQuery('(min-width:900px)')
+  const lg = useMediaQuery('(min-width:1200px)')
 
   const album = useSelector(selectAlbumById(+(id || '')))
   const photos = useSelector(selectPhotosByAlbumId(+(id || '')))
@@ -53,14 +58,19 @@ const CurrentAlbum: FC = () => {
       <hr />
       <input type='file' name='image' id='image' multiple onChange={onChange} />
       <hr />
-      <ul>
-        {photos &&
-          photos.map(({ id, name, photoLink }) => (
-            <li key={id}>
-              <Image width={300} height={220} src={photoLink} alt={name.split('_')[1]} />
-            </li>
+      {photos && (
+        <ImageList
+          variant='masonry'
+          cols={lg ? 5 : md ? 4 : sm ? 3 : 2}
+          gap={lg ? 12 : md ? 10 : sm ? 8 : 6}
+        >
+          {photos.map(({ id, name, photoLink }) => (
+            <ImageListItem key={id}>
+              <Image src={photoLink} alt={name.split('_')[1]} />
+            </ImageListItem>
           ))}
-      </ul>
+        </ImageList>
+      )}
     </motion.div>
   )
 }

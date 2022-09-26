@@ -1,9 +1,10 @@
-import { FC, ImgHTMLAttributes, useState } from 'react'
+import { FC, ImgHTMLAttributes, ReactNode, useState } from 'react'
 import styled from 'styled-components'
 
 import { motion } from 'framer-motion'
 import { Box, Skeleton } from '@mui/material'
 import PhotoCameraRoundedIcon from '@mui/icons-material/PhotoCameraRounded'
+import NoPhotographyRoundedIcon from '@mui/icons-material/NoPhotographyRounded'
 
 import useToggle from 'components/hooks/useToggle'
 
@@ -14,12 +15,21 @@ interface Props extends ImgHTMLAttributes<HTMLImageElement> {
   height?: number | string
 }
 
-export const Image: FC<Props> = ({ src, defaultImage, width, height, ...props }) => {
+export const Image: FC<Props> = ({ src, defaultImage, width, height, ...props }: Props) => {
   const [initAnimation] = useState({ opacity: 0, scale: 0.9 })
   const [isOriginalLoaded, setIsOriginalLoaded] = useToggle(false)
+  const [isRejected, setIsRejected] = useToggle(false)
+
+  const onLoad = () => {
+    setIsOriginalLoaded(true)
+  }
+
+  const onError = () => {
+    setIsRejected(true)
+  }
 
   return (
-    <>
+    <div>
       <motion.div
         initial={initAnimation}
         animate={isOriginalLoaded ? 'loaded' : 'unload'}
@@ -35,7 +45,8 @@ export const Image: FC<Props> = ({ src, defaultImage, width, height, ...props })
       >
         <ImageStyled
           src={src}
-          onLoad={() => setIsOriginalLoaded(true)}
+          onLoad={onLoad}
+          onError={onError}
           isHide={!isOriginalLoaded}
           width={width}
           height={height}
@@ -53,11 +64,39 @@ export const Image: FC<Props> = ({ src, defaultImage, width, height, ...props })
             justifyContent: 'center',
           }}
         >
-          <Skeleton variant='rounded' width={width} height={height} sx={{ bgcolor: '#eee' }} />
-          <PhotoCameraRoundedIcon sx={{ color: '#ddd', fontSize: '36px', position: 'absolute' }} />
+          <Skeleton
+            variant='rounded'
+            width={width || '100%'}
+            height={height || '240px'}
+            sx={{ bgcolor: '#eee' }}
+            animation={isRejected ? false : 'wave'}
+          />
+          <motion.div
+            animate={isRejected ? 'rejected' : 'loading'}
+            variants={{
+              loading: {
+                scale: [0.95, 1.1, 0.95],
+                transition: {
+                  repeat: Infinity,
+                  repeatDelay: 0.8,
+                },
+              },
+              rejected: {
+                scale: 1,
+                transition: { duration: 0.2 },
+              },
+            }}
+            style={{ position: 'absolute', zIndex: 2 }}
+          >
+            {isRejected ? (
+              <NoPhotographyRoundedIcon sx={{ color: '#dcd2d2', fontSize: '36px' }} />
+            ) : (
+              <PhotoCameraRoundedIcon sx={{ color: '#ddd', fontSize: '36px' }} />
+            )}
+          </motion.div>
         </Box>
       )}
-    </>
+    </div>
   )
 }
 
