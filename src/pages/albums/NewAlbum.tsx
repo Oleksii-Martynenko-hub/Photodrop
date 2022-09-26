@@ -15,12 +15,11 @@ import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment'
 import { MobileDatePicker } from '@mui/x-date-pickers/MobileDatePicker'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { motion } from 'framer-motion'
-import { Moment } from 'moment'
-import { toast } from 'react-toastify'
+import moment, { Moment } from 'moment'
 
 import { APIStatus } from 'api/MainApi'
 
-import { selectStatus } from 'store/albums/selectors'
+import { selectErrors, selectStatus } from 'store/albums/selectors'
 import { postCreateAlbumAsync } from 'store/albums/actions'
 
 import { useInput } from 'components/hooks/useInput'
@@ -31,6 +30,7 @@ const NewAlbum: FC = () => {
   const navigate = useNavigate()
 
   const status = useSelector(selectStatus)
+  const errors = useSelector(selectErrors)
 
   const [name, setName] = useInput('')
   const [location, setLocation] = useInput('')
@@ -42,6 +42,24 @@ const NewAlbum: FC = () => {
     setValidation({ isValid: true, message: '' })
   }, [name, location, date])
 
+  useDidMountEffect(() => {
+    if (status === APIStatus.FULFILLED) {
+      setName.setState('')
+      setLocation.setState('')
+      setDate(null)
+      setValidation({ isValid: true, message: '' })
+      navigate(-1)
+    }
+
+    if (status === APIStatus.REJECTED) {
+      errors.forEach((error) => {
+        if (error.msg === 'The album with this name already exist') {
+          setValidation({ isValid: false, message: '' })
+        }
+      })
+    }
+  }, [status])
+
   const handleOnChangeDate = (value: Moment | null) => setDate(value)
 
   const handleOnClickSave = async () => {
@@ -49,23 +67,7 @@ const NewAlbum: FC = () => {
       return setValidation({ isValid: false, message: 'All of the fields are required.' })
     }
 
-    await dispatch(postCreateAlbumAsync({ name, location, date: date.utc().format() }))
-
-    setName.setState('')
-    setLocation.setState('')
-    setDate(null)
-    setValidation({ isValid: true, message: '' })
-
-    toast.success(`Album "${name}" successfully created`, {
-      onClose: () => navigate(-1),
-      position: 'top-center',
-      autoClose: 1500,
-      hideProgressBar: true,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-    })
+    await dispatch(postCreateAlbumAsync({ name, location, date: moment(date).utc().format() }))
   }
 
   return (

@@ -31,14 +31,18 @@ export const albumsSlice = createSlice({
     builder.addCase(
       getAlbumsAsync.rejected,
       rejectedCase((_, action) => {
-        toast.error(action.payload?.[0].msg, {
-          position: 'top-center',
-          hideProgressBar: true,
-          closeOnClick: true,
-          draggable: true,
-          autoClose: 1500,
-          progress: undefined,
-        })
+        if (action.payload) {
+          action.payload.forEach((error) => {
+            toast.error(error.msg, {
+              position: 'top-center',
+              hideProgressBar: true,
+              closeOnClick: true,
+              draggable: true,
+              autoClose: 1500,
+              progress: undefined,
+            })
+          })
+        }
       }),
     )
     builder.addCase(getAlbumsAsync.fulfilled, (state, action) => {
@@ -47,10 +51,36 @@ export const albumsSlice = createSlice({
     })
 
     builder.addCase(postCreateAlbumAsync.pending, pendingCase())
-    builder.addCase(postCreateAlbumAsync.rejected, rejectedCase())
+    builder.addCase(
+      postCreateAlbumAsync.rejected,
+      rejectedCase((_, action) => {
+        if (action.payload) {
+          action.payload.forEach((error) => {
+            toast.error(error.msg, {
+              position: 'top-center',
+              hideProgressBar: true,
+              closeOnClick: true,
+              draggable: true,
+              autoClose: 3000,
+              progress: undefined,
+            })
+          })
+        }
+      }),
+    )
     builder.addCase(postCreateAlbumAsync.fulfilled, (state, action) => {
       state.status = APIStatus.FULFILLED
       state.albums.unshift(action.payload)
+
+      toast.success(`Album "${action.payload.name}" successfully created`, {
+        position: 'top-center',
+        autoClose: 1000,
+        hideProgressBar: true,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      })
     })
   },
 })
