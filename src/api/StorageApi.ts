@@ -1,5 +1,4 @@
-import HttpClientProtected from 'api/HttpClientProtected'
-import { PresignedPhotosPostResponse } from './ProtectedApi'
+import HttpClient from './HttpClient'
 
 export const API_URL = process.env.REACT_APP_STORAGE_API_URL || 'http://localhost:8080/api'
 
@@ -8,7 +7,7 @@ interface PostPhotoBody {
   onUploadProgress: (e: ProgressEvent) => void
 }
 
-class StorageApi extends HttpClientProtected {
+class StorageApi extends HttpClient {
   private static classInstance?: StorageApi
 
   public constructor() {
@@ -25,9 +24,6 @@ class StorageApi extends HttpClientProtected {
 
   public postPhoto = ({ formData, onUploadProgress }: PostPhotoBody) =>
     this.instance.post<string>('/', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
       onUploadProgress,
     })
 }

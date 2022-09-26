@@ -67,15 +67,16 @@ class ProtectedApi extends HttpClientProtected {
   public postCreateAlbum = (newAlbum: CreateAlbumData) =>
     this.instance.post<AlbumData>('/create-album', newAlbum)
 
-  // error messages
-
-  // 1 - 'The album with this name already exist'
-
   public getAlbums = (photographerId: number) => {
     return this.instance.get<AlbumData[]>('/get-albums-from-db', { params: { photographerId } })
   }
 
-  public getPhotos = (params: { photographerId: number; albumId: number }) => {
+  public getPhotos = (params: {
+    photographerId: number
+    albumId: number
+    page?: number
+    limit?: number
+  }) => {
     return this.instance.get<GetPhotosResponse>('/get-photos-from-db', { params })
   }
 

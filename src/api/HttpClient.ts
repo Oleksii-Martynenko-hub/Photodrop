@@ -20,14 +20,10 @@ abstract class HttpClient {
   }
 
   private initializeResponseInterceptor = () => {
-    this.instance.interceptors.response.use(this.handleResponseSuccess, this.handleResponseRejected)
+    this.instance.interceptors.response.use(this.handleResponseSuccess)
   }
 
   private handleResponseSuccess = ({ data }: AxiosResponse) => data
-
-  private handleResponseRejected = async (e: any): Promise<any> => {
-    return Promise.reject(e.response)
-  }
 }
 
 export default HttpClient

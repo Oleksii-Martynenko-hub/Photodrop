@@ -54,11 +54,11 @@ abstract class HttpClientProtected extends HttpClient {
       } catch (_) {
         tokens.clearTokens()
 
-        return Promise.reject(e.response)
+        return Promise.reject(e)
       }
     }
 
-    return Promise.reject(e.response)
+    return Promise.reject(e)
   }
 }
 

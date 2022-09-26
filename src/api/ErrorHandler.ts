@@ -1,7 +1,9 @@
 /* eslint-disable no-prototype-builtins */
 export type ErrorResponse = {
-  data: {
-    errors: ErrorObject[]
+  response: {
+    data: {
+      errors: ErrorObject[]
+    }
   }
 }
 
@@ -18,20 +20,22 @@ export const InternalError = [
   },
 ]
 
-export const getExceptionPayload = (ex: unknown): ErrorObject[] => {
-  if (typeof ex !== 'object' || !ex) {
+export const getExceptionPayload = (exception: unknown): ErrorObject[] => {
+  if (typeof exception !== 'object' || !exception) {
     return InternalError
   }
 
-  const res = ex as ErrorResponse
+  const ex = exception as ErrorResponse
 
   if (
-    res.hasOwnProperty('data') &&
-    typeof res.data === 'object' &&
-    res.data.hasOwnProperty('errors') &&
-    res.data.errors
+    ex.hasOwnProperty('response') &&
+    typeof ex.response === 'object' &&
+    ex.response.hasOwnProperty('data') &&
+    typeof ex.response.data === 'object' &&
+    ex.response.data.hasOwnProperty('errors') &&
+    ex.response.data.errors
   ) {
-    return res.data.errors
+    return ex.response.data.errors
   }
 
   return InternalError
