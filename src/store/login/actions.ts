@@ -6,8 +6,8 @@ import { getExceptionPayload } from 'api/ErrorHandler'
 import { ThunkExtra } from 'store'
 import { clearUserState } from 'store/user/reducers'
 import { clearAlbumsState } from 'store/albums/reducers'
+import { clearPhotosState } from 'store/photos/reducers'
 import { clearLoginState, clearToken } from 'store/login/reducers'
-
 
 export const loginAsync = createAsyncThunk<TokensData, LoginData, ThunkExtra>(
   'login/loginAsync',
@@ -30,6 +30,7 @@ export const logoutAsync = createAsyncThunk(
       dispatch(clearLoginState())
       dispatch(clearUserState())
       dispatch(clearAlbumsState())
+      dispatch(clearPhotosState())
 
       return new Promise(() => ({}))
     } catch (error) {

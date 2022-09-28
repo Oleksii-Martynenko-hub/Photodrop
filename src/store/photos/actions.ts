@@ -1,14 +1,18 @@
 import { createAsyncThunk } from '@reduxjs/toolkit'
 
-import { PhotosArray } from 'api/ProtectedApi'
+import { GetPhotosBody, People, PhotosArray } from 'api/ProtectedApi'
 import { getExceptionPayload } from 'api/ErrorHandler'
 
 import { ThunkExtra } from 'store'
 import { Photos } from './reducers'
 
-export const getPhotosAsync = createAsyncThunk<Photos, number, ThunkExtra>(
+export const getPhotosAsync = createAsyncThunk<
+  Photos & { isNextPage: boolean },
+  Omit<GetPhotosBody, 'photographerId'>,
+  ThunkExtra
+>(
   'photos/getPhotosAsync',
-  async (albumId, { rejectWithValue, extra: { protectedApi }, getState }) => {
+  async ({ albumId, page, limit }, { rejectWithValue, extra: { protectedApi }, getState }) => {
     try {
       const { id } = getState().userReducer
 
@@ -17,6 +21,8 @@ export const getPhotosAsync = createAsyncThunk<Photos, number, ThunkExtra>(
       const response = await protectedApi.getPhotos({
         photographerId: id,
         albumId,
+        limit,
+        page,
       })
 
       const photoKeys = response.rows.map((photo) => ({ photoKey: photo.name }))
@@ -33,7 +39,25 @@ export const getPhotosAsync = createAsyncThunk<Photos, number, ThunkExtra>(
         }
       })
 
-      return { albumId, count: response.count, photosList: formattedPhotos }
+      return {
+        albumId,
+        count: response.count,
+        photosList: formattedPhotos,
+        isNextPage: (page || 1) > 1,
+      }
+    } catch (error) {
+      return rejectWithValue(getExceptionPayload(error))
+    }
+  },
+)
+
+export const getPeopleAsync = createAsyncThunk<People[], void, ThunkExtra>(
+  'photos/getPeopleAsync',
+  async (_, { rejectWithValue, extra: { protectedApi } }) => {
+    try {
+      const response = await protectedApi.getAllPeople()
+
+      return response.people
     } catch (error) {
       return rejectWithValue(getExceptionPayload(error))
     }
@@ -97,7 +121,7 @@ export const postUploadPhotosAsync = createAsyncThunk<
       const bucket = await Promise.all(postToBucketPromises)
 
       setTimeout(async () => {
-        const updatedAlbum = await dispatch(getPhotosAsync(albumId))
+        const updatedAlbum = await dispatch(getPhotosAsync({ albumId }))
       }, 3000)
     } catch (error) {
       return rejectWithValue(getExceptionPayload(error))

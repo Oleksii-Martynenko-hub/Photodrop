@@ -44,6 +44,23 @@ export interface GetPhotosResponse {
   rows: PhotosData[]
 }
 
+export interface GetPhotosBody {
+  photographerId: number
+  albumId: number
+  page?: number
+  limit?: number
+}
+
+export interface People {
+  id: number
+  name: string | null
+  phone: string
+  email: string | null
+  textMessagesNotification: boolean
+  emailNotification: boolean
+  unsubscribe: boolean
+}
+
 export interface PhotosData extends Omit<AlbumData, 'date' | 'location'> {
   photoUrl: string
   albumId: number
@@ -71,12 +88,7 @@ class ProtectedApi extends HttpClientProtected {
     return this.instance.get<AlbumData[]>('/get-albums-from-db', { params: { photographerId } })
   }
 
-  public getPhotos = (params: {
-    photographerId: number
-    albumId: number
-    page?: number
-    limit?: number
-  }) => {
+  public getPhotos = (params: GetPhotosBody) => {
     return this.instance.get<GetPhotosResponse>('/get-photos-from-db', { params })
   }
 
@@ -86,7 +98,7 @@ class ProtectedApi extends HttpClientProtected {
   public postPresignedGetPhotos = (photoKeys: { photoKey: string }[]) =>
     this.instance.post<string[]>('/get-signed-photos', photoKeys)
 
-  public getAllPeople = () => this.instance.post<string[]>('/get-all-people')
+  public getAllPeople = () => this.instance.get<{ people: People[] }>('/get-all-people')
 }
 
 export default ProtectedApi

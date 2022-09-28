@@ -7,6 +7,7 @@ import { AlbumData } from 'api/ProtectedApi'
 
 import { pendingCase, rejectedCase } from 'store'
 import { getAlbumsAsync, postCreateAlbumAsync } from 'store/albums/actions'
+import { errorToast } from 'store/login/reducers'
 
 export interface AlbumsState {
   albums: AlbumData[]
@@ -33,14 +34,7 @@ export const albumsSlice = createSlice({
       rejectedCase((_, action) => {
         if (action.payload) {
           action.payload.forEach((error) => {
-            toast.error(error.msg, {
-              position: 'top-center',
-              hideProgressBar: true,
-              closeOnClick: true,
-              draggable: true,
-              autoClose: 1500,
-              progress: undefined,
-            })
+            toast.error(...errorToast(error.msg))
           })
         }
       }),
@@ -56,14 +50,7 @@ export const albumsSlice = createSlice({
       rejectedCase((_, action) => {
         if (action.payload) {
           action.payload.forEach((error) => {
-            toast.error(error.msg, {
-              position: 'top-center',
-              hideProgressBar: true,
-              closeOnClick: true,
-              draggable: true,
-              autoClose: 3000,
-              progress: undefined,
-            })
+            toast.error(...errorToast(error.msg))
           })
         }
       }),
