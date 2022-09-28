@@ -169,7 +169,11 @@ const CurrentAlbum: FC = () => {
         </AccordionDetails>
       </Accordion>
 
-      <Dialog onClose={onClosePhoto} open={isDialogOpen}>
+      <Dialog
+        onClose={onClosePhoto}
+        open={isDialogOpen}
+        PaperProps={{ sx: { background: 'transparent', boxShadow: 'none' } }}
+      >
         <Image {...currentPhoto} />
       </Dialog>
 
