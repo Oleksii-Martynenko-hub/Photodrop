@@ -9,9 +9,10 @@ export type AlbumData = {
   location: string
   date: string
   photographerId: number
+  icon: string | null
 }
 
-export interface CreateAlbumData extends Omit<AlbumData, 'id'> {}
+export interface CreateAlbumData extends Omit<AlbumData, 'id' | 'icon'> {}
 
 export type PhotosArray = [
   { photographerId: number },
@@ -86,6 +87,12 @@ class ProtectedApi extends HttpClientProtected {
 
   public getAlbums = (photographerId: number) => {
     return this.instance.get<AlbumData[]>('/get-albums-from-db', { params: { photographerId } })
+  }
+
+  public getAlbumIcons = (albumIds: number[]) => {
+    return this.instance.post<{ [k: string]: string | null }>('/get-albums-thumbnail-icons', {
+      albumIds,
+    })
   }
 
   public getPhotos = (params: GetPhotosBody) => {

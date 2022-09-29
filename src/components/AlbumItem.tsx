@@ -15,7 +15,7 @@ interface Props {
 }
 
 const AlbumItem: FC<Props> = ({ album, index }) => {
-  const { id, name, location: albumLocation, date } = album
+  const { id, name, location: albumLocation, date, icon } = album
 
   const isMediumScreenSize = useMediaQuery.min(900)
 
@@ -37,12 +37,7 @@ const AlbumItem: FC<Props> = ({ album, index }) => {
           <LinkStyled to={`${id}`}>
             <Grid container spacing={1} wrap='nowrap'>
               <Grid item>
-                <Image
-                  width={80}
-                  height={60}
-                  src={`http://placeimg.com/8${index}/6${index}/any`}
-                  // defaultImage='/favicon-32x32.png'
-                />
+                <Image width={80} height={60} src={icon || ''} />
               </Grid>
 
               <Grid item sx={{ flex: 1, minWidth: 0 }}>
