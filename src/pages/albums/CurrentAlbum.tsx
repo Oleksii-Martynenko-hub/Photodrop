@@ -5,6 +5,7 @@ import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
+  Button,
   Dialog,
   FormControl,
   Grid,
@@ -34,6 +35,7 @@ import { selectAlbumById } from 'store/albums/selectors'
 
 import useObserver from 'components/hooks/useObserver'
 import { Image } from 'components/Image'
+import { DropZoneFiles, UploadDropZone } from 'components/UploadDropZone'
 
 const CurrentAlbum: FC = () => {
   const id = +(useParams<{ id: string }>().id || '')
@@ -55,6 +57,8 @@ const CurrentAlbum: FC = () => {
   const [hasMorePhoto, setHasMorePhoto] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
 
+  const [files, setFiles] = useState<DropZoneFiles[]>([])
+
   const [currentPeople, setCurrentPeople] = useState<string[]>([])
 
   const observerRef = useRef<HTMLDivElement>(null)
@@ -74,6 +78,10 @@ const CurrentAlbum: FC = () => {
     }
   }, [photos, count])
 
+  useEffect(() => {
+    console.log(files)
+  }, [files])
+
   // useEffect(() => {
   //   if (visible && hasMorePhoto && status !== APIStatus.PENDING && photos && album) {
   //     console.log('🚀 ~ useEffect ~ visible', visible)
@@ -82,11 +90,11 @@ const CurrentAlbum: FC = () => {
   //   }
   // }, [visible])
 
-  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files?.length && album) {
+  const onClickUploadPhotos = () => {
+    if (files.length && album) {
       dispatch(
         postUploadPhotosAsync({
-          fileList: e.target.files,
+          files,
           people: currentPeople,
           albumId: album.id,
         }),
@@ -165,7 +173,10 @@ const CurrentAlbum: FC = () => {
               ))}
             </Select>
           </FormControl>
-          <input type='file' name='image' id='image' multiple onChange={onChange} />
+
+          <Button onClick={onClickUploadPhotos}>Upload</Button>
+
+          <UploadDropZone files={files} setFiles={setFiles} />
         </AccordionDetails>
       </Accordion>
 
@@ -181,7 +192,14 @@ const CurrentAlbum: FC = () => {
         <ImageList cols={lg ? 5 : md ? 4 : sm ? 3 : 2} gap={lg ? 12 : md ? 10 : sm ? 8 : 6}>
           {photos.map(({ id, name, photoLink }) => (
             <ImageListItem key={id} onClick={onClickPhoto(photoLink, name.split('_')[1])}>
-              <Image height={200} src={photoLink} alt={name.split('_')[1]} clickable />
+              <Image
+                onClick={onClosePhoto}
+                height={200}
+                iconSize={36}
+                src={photoLink}
+                alt={name.split('_')[1]}
+                clickable
+              />
             </ImageListItem>
           ))}
         </ImageList>

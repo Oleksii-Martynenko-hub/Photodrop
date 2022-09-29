@@ -5,6 +5,7 @@ import { getExceptionPayload } from 'api/ErrorHandler'
 
 import { ThunkExtra } from 'store'
 import { Photos } from './reducers'
+import { DropZoneFiles } from 'components/UploadDropZone'
 
 export const getPhotosAsync = createAsyncThunk<
   Photos & { isNextPage: boolean },
@@ -67,7 +68,7 @@ export const getPeopleAsync = createAsyncThunk<People[], void, ThunkExtra>(
 export const postUploadPhotosAsync = createAsyncThunk<
   void,
   {
-    fileList: FileList
+    files: DropZoneFiles[]
     people: string[]
     albumId: number
   },
@@ -75,7 +76,7 @@ export const postUploadPhotosAsync = createAsyncThunk<
 >(
   'photos/postUploadPhotosAsync',
   async (
-    { fileList, people, albumId },
+    { files, people, albumId },
     { rejectWithValue, extra: { protectedApi, storageApi }, getState, dispatch },
   ) => {
     try {
@@ -83,7 +84,7 @@ export const postUploadPhotosAsync = createAsyncThunk<
 
       if (!id) throw new Error('Error getAlbumsAsync: photographerId is missing')
 
-      const photosArray: PhotosArray[] = Array.from(fileList).map((file) => {
+      const photosArray: PhotosArray[] = files.map((file) => {
         return [
           { photographerId: id },
           { albumId },
@@ -97,9 +98,9 @@ export const postUploadPhotosAsync = createAsyncThunk<
       const postToBucketPromises = photos.map(({ fields }, i) => {
         const formData = new FormData()
 
-        const fileIndex = Array.from(fileList).findIndex((file) => fields.key.includes(file.name))
+        const fileIndex = files.findIndex((file) => fields.key.includes(file.name))
 
-        const file = fileList.item(fileIndex)
+        const { file, name, setUploadProgress } = files[fileIndex]
 
         formData.append('key', fields.key)
         formData.append('Content-Type', fields['Content-Type'])
@@ -113,7 +114,7 @@ export const postUploadPhotosAsync = createAsyncThunk<
         formData.append('file', file as Blob)
 
         const onUploadProgress = (e: ProgressEvent) => {
-          // console.log(`Upload Progress ${i + 1} file: ${Math.round((100 * e.loaded) / e.total)}%`)
+          setUploadProgress(Math.round((100 * e.loaded) / e.total), name)
         }
         return storageApi.postPhoto({ formData, onUploadProgress })
       })

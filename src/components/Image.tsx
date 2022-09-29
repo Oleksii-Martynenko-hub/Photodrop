@@ -1,4 +1,4 @@
-import { FC, ImgHTMLAttributes, ReactNode, useState } from 'react'
+import { FC, ImgHTMLAttributes, ReactNode, useEffect, useRef, useState } from 'react'
 import styled from 'styled-components'
 
 import { motion } from 'framer-motion'
@@ -13,6 +13,7 @@ interface Props extends ImgHTMLAttributes<HTMLImageElement> {
   defaultImage?: string
   width?: number | string
   height?: number | string
+  iconSize?: number | string
   sx?: SxProps<Theme> | undefined
   clickable?: boolean
 }
@@ -22,11 +23,15 @@ export const Image: FC<Props> = ({
   defaultImage,
   width,
   height,
+  iconSize,
   sx,
   clickable,
   ...props
 }: Props) => {
   const [initAnimation] = useState({ opacity: 0, scale: 0.9 })
+  const [iconFontSize] = useState(
+    iconSize ? (typeof iconSize === 'number' ? iconSize + 'px' : iconSize) : '26px',
+  )
   const [isOriginalLoaded, setIsOriginalLoaded] = useToggle(false)
   const [isRejected, setIsRejected] = useToggle(false)
 
@@ -49,7 +54,7 @@ export const Image: FC<Props> = ({
           loaded: {
             opacity: 1,
             scale: 1,
-            transition: { duration: 0.3 },
+            transition: { duration: 0.2 },
           },
         }}
       >
@@ -80,13 +85,15 @@ export const Image: FC<Props> = ({
             width={width || '100%'}
             height={height || '240px'}
             sx={{ bgcolor: '#eee' }}
-            animation={isRejected ? false : 'wave'}
+            animation={false}
           />
           <motion.div
             animate={isRejected ? 'rejected' : 'loading'}
             variants={{
               loading: {
-                scale: [0.95, 1.1, 0.95],
+                color: ['#dddddd', '#3300cc', '#dddddd'],
+                opacity: [1, 0.3, 1],
+                scale: [0.9, 1.2, 0.9],
                 transition: {
                   repeat: Infinity,
                   repeatDelay: 0.8,
@@ -94,15 +101,27 @@ export const Image: FC<Props> = ({
               },
               rejected: {
                 scale: 1,
+                opacity: 1,
                 transition: { duration: 0.2 },
               },
             }}
             style={{ position: 'absolute', zIndex: 2 }}
           >
             {isRejected ? (
-              <NoPhotographyRoundedIcon sx={{ color: '#dcd2d2', fontSize: '36px' }} />
+              <NoPhotographyRoundedIcon
+                sx={{
+                  color: '#dcd2d2',
+                  fontSize: iconFontSize,
+                  transform: 'translateY(3px)',
+                }}
+              />
             ) : (
-              <PhotoCameraRoundedIcon sx={{ color: '#ddd', fontSize: '36px' }} />
+              <PhotoCameraRoundedIcon
+                sx={{
+                  fontSize: iconFontSize,
+                  transform: 'translateY(3px)',
+                }}
+              />
             )}
           </motion.div>
         </Box>
