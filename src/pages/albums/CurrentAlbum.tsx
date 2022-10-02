@@ -134,7 +134,7 @@ const CurrentAlbum: FC = () => {
 
         <AccordionDetails>
           <Box mb='15px'>
-            <UploadDropZone files={files} setFiles={setFiles} />
+            <UploadDropZone files={files} setFiles={setFiles} isUploading={isUploading} />
           </Box>
 
           <Box mb='15px'>

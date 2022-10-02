@@ -1,18 +1,12 @@
-import { FC, useEffect, useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
-import { useDispatch, useSelector } from 'react-redux'
-import { AppBar as Bar, IconButton, SxProps, Theme, Toolbar } from '@mui/material'
-import LogoutIcon from '@mui/icons-material/Logout'
-import ArrowBackIosNewRoundedIcon from '@mui/icons-material/ArrowBackIosNewRounded'
-
-import { logoutAsync } from 'store/login/actions'
-import { selectIsLoggedIn } from 'store/login/selectors'
-
-import useToggle from 'components/hooks/useToggle'
-
-import { Logo } from 'components/Logo'
-import HideOnScroll from 'components/HideOnScroll'
+import { FC, useEffect } from 'react'
+import { Box, CircularProgress, Grid, useMediaQuery } from '@mui/material'
+import CheckCircleOutlineRoundedIcon from '@mui/icons-material/CheckCircleOutlineRounded'
 import { useDropzone } from 'react-dropzone'
+import { motion } from 'framer-motion'
+
+// import { uniqBy } from 'utils/uniq-by'
+
+import { Image } from 'components/Image'
 
 export interface DropZoneFiles {
   name: string
@@ -25,95 +19,64 @@ export interface DropZoneFiles {
 interface Props {
   files: DropZoneFiles[]
   setFiles: React.Dispatch<React.SetStateAction<DropZoneFiles[]>>
+  isUploading: boolean
 }
 
-export const UploadDropZone: FC<Props> = ({ files, setFiles }) => {
-  const [isShowBackButton, setIsShowBackButton] = useToggle(false)
+export const UploadDropZone: FC<Props> = ({ files, setFiles, isUploading }) => {
+  const sm = useMediaQuery('(min-width:600px)')
+  const md = useMediaQuery('(min-width:900px)')
 
   const setUploadProgress = (progress: number, name: string) => {
     setFiles((prev) => prev.map((file) => (file.name === name ? { ...file, progress } : file)))
   }
 
-  const { getRootProps, getInputProps } = useDropzone({
+  const { getRootProps, getInputProps, isDragActive, isDragReject, isFocused } = useDropzone({
     accept: {
       'image/*': [],
     },
     onDrop: (acceptedFiles) => {
-      setFiles(
-        acceptedFiles.map((file) => ({
+      const updatedFiles = [
+        ...files,
+        ...acceptedFiles.map((file) => ({
           name: file.name,
           file,
           preview: URL.createObjectURL(file),
           progress: 0,
           setUploadProgress,
         })),
-      )
+      ]
+
+      setFiles(updatedFiles)
+      // setFiles(uniqBy<DropZoneFiles>(updatedFiles, 'name'))
     },
   })
 
   useEffect(() => {
-    console.log(getRootProps(), getInputProps())
-  }, [])
-
-  const thumbs = files.map(({ preview, progress, name }) => (
-    <div
-      style={{
-        display: 'inline-flex',
-        borderRadius: 4,
-        border: '1px solid #999',
-        marginBottom: 8,
-        marginRight: 8,
-        width: 100,
-        height: 100,
-        padding: 4,
-        boxSizing: 'border-box',
-      }}
-      key={name}
-    >
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          minWidth: 0,
-          overflow: 'hidden',
-        }}
-      >
-        <p style={{ lineHeight: 1, margin: 0, textAlign: 'center' }}>{progress}%</p>
-        <img
-          src={preview}
-          style={{
-            display: 'block',
-            height: '100%',
-            width: 'auto',
-            borderRadius: 4,
-            objectFit: 'cover',
-            objectPosition: 'center',
-          }}
-          // Revoke data uri after image is loaded
-          onLoad={() => {
-            URL.revokeObjectURL(preview)
-          }}
-        />
-      </div>
-    </div>
-  ))
+    if (isDragReject) console.log('rejected files')
+  }, [isDragReject])
 
   useEffect(() => {
-    // Make sure to revoke the data uris to avoid memory leaks, will run on unmount
     return () => files.forEach((file) => URL.revokeObjectURL(file.preview))
   }, [])
 
   return (
     <section
-      className='container'
+      className='dropzone-image-upload-section'
       style={{ background: '#eee', padding: '10px', borderRadius: '6px' }}
     >
-      <div
+      <Box
         {...getRootProps({
           className: 'dropzone',
           style: {
-            border: '2px dashed gray',
-            padding: '10px',
+            border: '2px dashed',
+            borderColor: isDragActive
+              ? '#53c653'
+              : isDragReject
+              ? '#db2b2b'
+              : isFocused
+              ? '#3300cc'
+              : 'gray',
+            padding: '8px',
             borderRadius: '6px',
             position: 'relative',
             minHeight: '100px',
@@ -121,33 +84,79 @@ export const UploadDropZone: FC<Props> = ({ files, setFiles }) => {
         })}
       >
         <input {...getInputProps()} />
-        {!files.length && (
-          <p
-            style={{
-              position: 'absolute',
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)',
-              color: '#999',
-              width: '100%',
-              padding: '25px',
-              margin: '0',
-              textAlign: 'center',
-            }}
-          >
-            Drag &apos;n&apos; drop some files here, or click to select files
-          </p>
+        {!files.length ? (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            <p
+              style={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                color: '#999',
+                width: '100%',
+                padding: '25px',
+                margin: '0',
+                textAlign: 'center',
+              }}
+            >
+              Drag &apos;n&apos; drop some files here, or click to select files
+            </p>
+          </motion.div>
+        ) : (
+          <Grid container spacing={1}>
+            {files.map(({ preview, progress, name }) => (
+              <Grid item xs={6} sm={4} md={3} key={name}>
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                  <Box
+                    sx={{ position: 'relative', border: '1px solid #282828', borderRadius: '5px' }}
+                  >
+                    <Image
+                      src={preview}
+                      height={md ? 240 : sm ? 180 : 120}
+                      onLoad={() => {
+                        URL.revokeObjectURL(preview)
+                      }}
+                    />
+                    {isUploading && (
+                      <Box
+                        sx={{
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
+                          display: 'flex',
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          background: 'rgba(0, 0, 0, 0.7)',
+                          width: '100%',
+                          height: md ? '240px' : sm ? '180px' : '120px',
+                          borderRadius: '4px',
+                        }}
+                      >
+                        {progress === 100 ? (
+                          <CheckCircleOutlineRoundedIcon
+                            sx={{
+                              fontSize: '56px',
+                              color: '#53c653',
+                            }}
+                          />
+                        ) : (
+                          <CircularProgress
+                            variant='determinate'
+                            value={progress}
+                            size={48}
+                            thickness={5}
+                            sx={{ color: '#53c653' }}
+                          />
+                        )}
+                      </Box>
+                    )}
+                  </Box>
+                </motion.div>
+              </Grid>
+            ))}
+          </Grid>
         )}
-        <aside
-          style={{
-            display: 'flex',
-            flexDirection: 'row',
-            flexWrap: 'wrap',
-          }}
-        >
-          {thumbs}
-        </aside>
-      </div>
+      </Box>
     </section>
   )
 }

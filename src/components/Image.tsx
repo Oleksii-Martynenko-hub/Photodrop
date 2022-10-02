@@ -1,4 +1,4 @@
-import { FC, ImgHTMLAttributes, ReactNode, useEffect, useRef, useState } from 'react'
+import { FC, ImgHTMLAttributes, useState } from 'react'
 import styled from 'styled-components'
 
 import { motion } from 'framer-motion'
@@ -16,6 +16,7 @@ interface Props extends ImgHTMLAttributes<HTMLImageElement> {
   iconSize?: number | string
   sx?: SxProps<Theme> | undefined
   clickable?: boolean
+  onLoad?: () => void
 }
 
 export const Image: FC<Props> = ({
@@ -26,6 +27,7 @@ export const Image: FC<Props> = ({
   iconSize,
   sx,
   clickable,
+  onLoad,
   ...props
 }: Props) => {
   const [initAnimation] = useState({ opacity: 0, scale: 0.9 })
@@ -35,8 +37,9 @@ export const Image: FC<Props> = ({
   const [isOriginalLoaded, setIsOriginalLoaded] = useToggle(false)
   const [isRejected, setIsRejected] = useToggle(false)
 
-  const onLoad = () => {
+  const onLoadImage = () => {
     setIsOriginalLoaded(true)
+    if (onLoad) onLoad()
   }
 
   const onError = () => {
@@ -60,7 +63,7 @@ export const Image: FC<Props> = ({
       >
         <ImageStyled
           src={src}
-          onLoad={onLoad}
+          onLoad={onLoadImage}
           onError={onError}
           isHide={!isOriginalLoaded}
           width={width}
