@@ -5,15 +5,12 @@ import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
-  Button,
+  Box,
+  CircularProgress,
   Dialog,
-  FormControl,
   Grid,
   ImageList,
   ImageListItem,
-  MenuItem,
-  Select,
-  SelectChangeEvent,
   Typography,
   useMediaQuery,
 } from '@mui/material'
@@ -24,11 +21,16 @@ import moment from 'moment'
 
 import { APIStatus } from 'api/MainApi'
 
-import { getPeopleAsync, getPhotosAsync, postUploadPhotosAsync } from 'store/photos/actions'
 import {
-  selectPeople,
-  selectPhotoCountByAlbumId,
+  getMorePhotosAsync,
+  getPeopleAsync,
+  getPhotosAsync,
+  postUploadPhotosAsync,
+} from 'store/photos/actions'
+import {
+  selectHasMorePhotosByAlbumId,
   selectPhotosByAlbumId,
+  selectPhotosPageByAlbumId,
   selectStatus,
 } from 'store/photos/selectors'
 import { selectAlbumById } from 'store/albums/selectors'
@@ -36,6 +38,9 @@ import { selectAlbumById } from 'store/albums/selectors'
 import useObserver from 'components/hooks/useObserver'
 import { Image } from 'components/Image'
 import { DropZoneFiles, UploadDropZone } from 'components/UploadDropZone'
+import PeopleSelect, { PeopleOptionType } from 'components/PeopleSelect'
+import { LoadingButton } from '@mui/lab'
+import { useDidMountEffect } from 'components/hooks/useDidMountEffect'
 
 const CurrentAlbum: FC = () => {
   const id = +(useParams<{ id: string }>().id || '')
@@ -49,62 +54,52 @@ const CurrentAlbum: FC = () => {
   const album = useSelector(selectAlbumById(id))
   const status = useSelector(selectStatus)
   const photos = useSelector(selectPhotosByAlbumId(id))
-  const people = useSelector(selectPeople)
-  const count = useSelector(selectPhotoCountByAlbumId(id))
+  const page = useSelector(selectPhotosPageByAlbumId(id))
+  const hasMorePhoto = useSelector(selectHasMorePhotosByAlbumId(id))
 
   const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [isUploading, setIsUploading] = useState(false)
   const [currentPhoto, setCurrentPhoto] = useState({ src: '', alt: '' })
-  const [hasMorePhoto, setHasMorePhoto] = useState(false)
-  const [currentPage, setCurrentPage] = useState(1)
+  const [currentPeople, setCurrentPeople] = useState<PeopleOptionType[]>([])
 
   const [files, setFiles] = useState<DropZoneFiles[]>([])
-
-  const [currentPeople, setCurrentPeople] = useState<string[]>([])
 
   const observerRef = useRef<HTMLDivElement>(null)
   const visible = useObserver(observerRef, '100px')
 
   useEffect(() => {
     if (!photos && album) {
-      dispatch(getPhotosAsync({ albumId: album.id, limit: 1000 }))
+      dispatch(getPhotosAsync({ albumId: album.id }))
     }
     dispatch(getPeopleAsync())
   }, [])
 
-  useEffect(() => {
-    if (photos && count) {
-      setHasMorePhoto(count > photos.length)
-      setCurrentPage(Math.ceil(photos.length / 10))
+  useDidMountEffect(() => {
+    if (isUploading && status === APIStatus.FULFILLED) {
+      setFiles([])
+      setCurrentPeople([])
+      setIsUploading(false)
     }
-  }, [photos, count])
+  }, [status])
 
   useEffect(() => {
-    console.log(files)
-  }, [files])
-
-  // useEffect(() => {
-  //   if (visible && hasMorePhoto && status !== APIStatus.PENDING && photos && album) {
-  //     console.log('🚀 ~ useEffect ~ visible', visible)
-  //     console.log('🚀 ~ useEffect ~ currentPage', currentPage)
-  //     dispatch(getPhotosAsync({ albumId: album.id, page: currentPage + 1 }))
-  //   }
-  // }, [visible])
+    if (visible && hasMorePhoto && status !== APIStatus.PENDING && photos && album) {
+      dispatch(getMorePhotosAsync({ albumId: album.id, page }))
+    }
+  }, [visible, status, hasMorePhoto])
 
   const onClickUploadPhotos = () => {
     if (files.length && album) {
+      setIsUploading(true)
+
       dispatch(
         postUploadPhotosAsync({
           files,
-          people: currentPeople,
+          people: currentPeople.map((p) => p.phone),
           albumId: album.id,
         }),
       )
     }
-  }
-
-  const handleChangePeople = (e: SelectChangeEvent<string[]>) => {
-    const { value } = e.target
-    setCurrentPeople(typeof value === 'string' ? value.split(',') : value)
   }
 
   const onClickPhoto = (src: string, alt: string) => () => {
@@ -138,51 +133,34 @@ const CurrentAlbum: FC = () => {
         </AccordionSummary>
 
         <AccordionDetails>
-          <FormControl fullWidth sx={{ marginBottom: '12px' }}>
-            <Select
-              multiple
-              displayEmpty
-              placeholder='People on photos'
-              value={currentPeople}
-              onChange={handleChangePeople}
-              renderValue={(selected) => {
-                if (selected.length === 0) {
-                  return <em style={{ color: '#999' }}>People on photos</em>
-                }
+          <Box mb='15px'>
+            <UploadDropZone files={files} setFiles={setFiles} />
+          </Box>
 
-                return selected.join(', ')
-              }}
-              inputProps={{
-                sx: {
-                  backgroundColor: '#F4F4F4',
-                  borderRadius: '6px !important',
-                  height: '40px !important',
-                  minHeight: '40px !important',
-                  boxSizing: 'border-box',
-                  padding: '10px 14px',
-                },
-              }}
-              sx={{
-                borderRadius: '6px !important',
-              }}
-            >
-              {people.map(({ id, phone }) => (
-                <MenuItem key={id} value={phone}>
-                  {phone}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+          <Box mb='15px'>
+            <PeopleSelect currentPeople={currentPeople} setCurrentPeople={setCurrentPeople} />
+          </Box>
 
-          <Button onClick={onClickUploadPhotos}>Upload</Button>
-
-          <UploadDropZone files={files} setFiles={setFiles} />
+          <LoadingButton
+            loading={isUploading}
+            loadingIndicator={
+              <CircularProgress size={18} sx={{ position: 'absolute', top: '-9px', left: '2px' }} />
+            }
+            loadingPosition='end'
+            fullWidth
+            variant='contained'
+            sx={{ flex: '1', borderRadius: '40px', height: '40px', marginRight: '10px' }}
+            onClick={onClickUploadPhotos}
+          >
+            Upload photo
+          </LoadingButton>
         </AccordionDetails>
       </Accordion>
 
       <Dialog
-        onClose={onClosePhoto}
+        scroll='body'
         open={isDialogOpen}
+        onClose={onClosePhoto}
         PaperProps={{ sx: { background: 'transparent', boxShadow: 'none' } }}
       >
         <Image {...currentPhoto} />
@@ -205,9 +183,8 @@ const CurrentAlbum: FC = () => {
         </ImageList>
       )}
 
-      {/* {hasMorePhoto && ( */}
       <div
-        className='observerRef'
+        className='observer-ref-upload-more-photo'
         ref={observerRef}
         style={{
           textAlign: 'center',
@@ -218,7 +195,6 @@ const CurrentAlbum: FC = () => {
       >
         Loading...
       </div>
-      {/* )} */}
     </motion.div>
   )
 }

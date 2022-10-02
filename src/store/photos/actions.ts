@@ -7,15 +7,12 @@ import { ThunkExtra } from 'store'
 import { Photos } from './reducers'
 import { DropZoneFiles } from 'components/UploadDropZone'
 
-export const getPhotosAsync = createAsyncThunk<
-  Photos & { isNextPage: boolean },
-  Omit<GetPhotosBody, 'photographerId'>,
-  ThunkExtra
->(
+export const getPhotosAsync = createAsyncThunk<Photos, { albumId: number }, ThunkExtra>(
   'photos/getPhotosAsync',
-  async ({ albumId, page, limit }, { rejectWithValue, extra: { protectedApi }, getState }) => {
+  async ({ albumId }, { rejectWithValue, extra: { protectedApi }, getState }) => {
     try {
       const { id } = getState().userReducer
+      const { limit } = getState().photosReducer
 
       if (!id) throw new Error('Error getPhotosAsync: photographerId is missing')
 
@@ -23,7 +20,6 @@ export const getPhotosAsync = createAsyncThunk<
         photographerId: id,
         albumId,
         limit,
-        page,
       })
 
       const photoKeys = response.rows.map((photo) => ({ photoKey: photo.name }))
@@ -43,8 +39,56 @@ export const getPhotosAsync = createAsyncThunk<
       return {
         albumId,
         count: response.count,
+        hasMore: response.count > formattedPhotos.length,
+        page: 1,
         photosList: formattedPhotos,
-        isNextPage: (page || 1) > 1,
+      }
+    } catch (error) {
+      return rejectWithValue(getExceptionPayload(error))
+    }
+  },
+)
+
+export const getMorePhotosAsync = createAsyncThunk<
+  Photos,
+  Omit<GetPhotosBody, 'photographerId'>,
+  ThunkExtra
+>(
+  'photos/getMorePhotosAsync',
+  async ({ albumId, page = 1 }, { rejectWithValue, extra: { protectedApi }, getState }) => {
+    try {
+      const { id } = getState().userReducer
+      const { limit } = getState().photosReducer
+
+      if (!id) throw new Error('Error getPhotosAsync: photographerId is missing')
+
+      const response = await protectedApi.getPhotos({
+        photographerId: id,
+        albumId,
+        limit,
+        page: page + 1,
+      })
+
+      const photoKeys = response.rows.map((photo) => ({ photoKey: photo.name }))
+
+      const photoLinks = await protectedApi.postPresignedGetPhotos(photoKeys)
+
+      const formattedPhotos = response.rows.map(({ name, ...photo }) => {
+        const photoLink = photoLinks.find((link) => link.includes(name)) || ''
+
+        return {
+          name,
+          photoLink,
+          ...photo,
+        }
+      })
+
+      return {
+        albumId,
+        count: response.count,
+        hasMore: response.count > page * limit + formattedPhotos.length,
+        page: page + 1,
+        photosList: formattedPhotos,
       }
     } catch (error) {
       return rejectWithValue(getExceptionPayload(error))
@@ -95,7 +139,7 @@ export const postUploadPhotosAsync = createAsyncThunk<
 
       const photos = await protectedApi.postPresignedPostPhotos({ photosArray, people })
 
-      const postToBucketPromises = photos.map(({ fields }, i) => {
+      const postToBucketPromises = photos.map(({ fields }) => {
         const formData = new FormData()
 
         const fileIndex = files.findIndex((file) => fields.key.includes(file.name))
@@ -119,10 +163,10 @@ export const postUploadPhotosAsync = createAsyncThunk<
         return storageApi.postPhoto({ formData, onUploadProgress })
       })
 
-      const bucket = await Promise.all(postToBucketPromises)
+      await Promise.all(postToBucketPromises)
 
       setTimeout(async () => {
-        const updatedAlbum = await dispatch(getPhotosAsync({ albumId }))
+        await dispatch(getPhotosAsync({ albumId }))
       }, 3000)
     } catch (error) {
       return rejectWithValue(getExceptionPayload(error))

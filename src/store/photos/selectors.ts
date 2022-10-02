@@ -27,9 +27,32 @@ export const selectPhotoCountByAlbumId: (
   )
 }
 
+export const selectPhotosPageByAlbumId: (albumId: number) => Selector<RootState, number> = (
+  albumId,
+) => {
+  return createSelector(
+    selectPhotosReducer,
+    ({ photos }) => photos.find((photoList) => photoList.albumId === albumId)?.page || 1,
+  )
+}
+
+export const selectHasMorePhotosByAlbumId: (
+  albumId: number,
+) => Selector<RootState, boolean | undefined> = (albumId) => {
+  return createSelector(
+    selectPhotosReducer,
+    ({ photos }) => photos.find((photoList) => photoList.albumId === albumId)?.hasMore,
+  )
+}
+
 export const selectPeople: Selector<RootState, People[]> = createSelector(
   selectPhotosReducer,
   ({ people }) => people,
+)
+
+export const selectLimit: Selector<RootState, number> = createSelector(
+  selectPhotosReducer,
+  ({ limit }) => limit,
 )
 
 export const selectStatus: Selector<RootState, APIStatus> = createSelector(
