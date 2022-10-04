@@ -137,12 +137,15 @@ export const postUploadPhotosAsync = createAsyncThunk<
         ]
       })
 
-      const photos = await protectedApi.postPresignedPostPhotos({ photosArray, people })
+      const postToBucketPromises = photosArray.map(async (photo) => {
+        const [{ fields }] = await protectedApi.postPresignedPostPhotos({
+          photosArray: [photo],
+          people,
+        })
 
-      const postToBucketPromises = photos.map(({ fields }) => {
         const formData = new FormData()
 
-        const fileIndex = files.findIndex((file) => fields.key.includes(file.name))
+        const fileIndex = files.findIndex((file) => photo[2].photoName.includes(file.name))
 
         const { file, name, setUploadProgress } = files[fileIndex]
 
