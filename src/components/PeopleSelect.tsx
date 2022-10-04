@@ -1,4 +1,4 @@
-import { FC, useState } from 'react'
+import { FC, useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import styled from 'styled-components'
 import { Box, Chip, FilterOptionsState, TextField, Typography } from '@mui/material'
@@ -27,15 +27,22 @@ const filter = createFilterOptions<PeopleOptionType>()
 const PeopleSelect: FC<Props> = ({ currentPeople, setCurrentPeople }) => {
   const people = useSelector(selectPeople)
 
-  const [peopleOptions] = useState<PeopleOptionType[]>(
-    uniqBy<PeopleOptionType>(
-      [...additionalPeople, ...people.map(({ name, phone }) => ({ name, phone }))],
-      'phone',
-    ),
-  )
+  const [isAdditionalPhoneValid, setIsAdditionalPhoneValid] = useState(false)
+  const [peopleOptions, setPeopleOptions] = useState<PeopleOptionType[]>([])
 
-  const onChangePeople = (event: any, newValue: PeopleOptionType[]) => {
+  useEffect(() => {
+    if (people.length)
+      setPeopleOptions(
+        uniqBy<PeopleOptionType>(
+          [...additionalPeople, ...people.map(({ name, phone }) => ({ name, phone }))],
+          'phone',
+        ),
+      )
+  }, [people])
+
+  const onChangePeople = (event: unknown, newValue: PeopleOptionType[]) => {
     setCurrentPeople(newValue)
+    setIsAdditionalPhoneValid(true)
   }
 
   const filterPeopleOptions = (
@@ -47,6 +54,9 @@ const PeopleSelect: FC<Props> = ({ currentPeople, setCurrentPeople }) => {
     const { inputValue } = params
     const isExisting = options.some((option) => inputValue === option.phone)
     if (inputValue !== '' && !isExisting) {
+      const isInputValueValid = /^[0-9]{10,13}$/.test(inputValue)
+      setIsAdditionalPhoneValid(isInputValueValid)
+
       filtered.push({
         name: null,
         phone: inputValue,
@@ -78,7 +88,12 @@ const PeopleSelect: FC<Props> = ({ currentPeople, setCurrentPeople }) => {
               <SubLabel>{option.phone}</SubLabel>
             </MainLabel>
           ) : option.inputValue ? (
-            <MainLabel>{option.inputValue}</MainLabel>
+            <MainLabel>
+              {option.inputValue}
+              <SubLabel isValid={isAdditionalPhoneValid}>
+                {isAdditionalPhoneValid ? '' : 'Phone number is not valid'}
+              </SubLabel>
+            </MainLabel>
           ) : (
             <MainLabel>{option.phone}</MainLabel>
           )}
@@ -99,6 +114,10 @@ const PeopleSelect: FC<Props> = ({ currentPeople, setCurrentPeople }) => {
     ))
   }
 
+  const getOptionDisabled = (option: PeopleOptionType) => {
+    return Boolean(option.inputValue) && !isAdditionalPhoneValid
+  }
+
   return (
     <Autocomplete
       multiple
@@ -110,6 +129,8 @@ const PeopleSelect: FC<Props> = ({ currentPeople, setCurrentPeople }) => {
       filterOptions={filterPeopleOptions}
       isOptionEqualToValue={isOptionEqualToValue}
       getOptionLabel={getOptionLabel}
+      getOptionDisabled={getOptionDisabled}
+      disableCloseOnSelect
       renderOption={renderOption}
       renderTags={renderTags}
       renderInput={(params) => (
@@ -143,8 +164,8 @@ const MainLabel = styled(Typography)`
   display: block;
 `
 
-const SubLabel = styled.span`
-  color: #444444;
+const SubLabel = styled.span<{ isValid?: boolean }>`
+  color: ${({ isValid = true }) => (isValid ? '#444444' : 'red')};
   line-height: 12px;
   font-size: 12px;
   margin-top: 4px;
@@ -154,42 +175,42 @@ const SubLabel = styled.span`
 const additionalPeople: readonly PeopleOptionType[] = [
   {
     name: 'Eliza Wall',
-    phone: '+38 (050) 912-50-62',
+    phone: '380509125062',
   },
   {
     name: null,
-    phone: '+38 (050) 878-48-62',
+    phone: '380508784862',
   },
   {
     name: 'Doreen Hudson',
-    phone: '+38 (097) 995-47-93',
+    phone: '380979954793',
   },
   {
     name: 'Shirley Rose',
-    phone: '+38 (068) 867-44-23',
+    phone: '380688674423',
   },
   {
     name: 'Fitzpatrick Strong',
-    phone: '+38 (067) 827-42-12',
+    phone: '380678274212',
   },
   {
     name: null,
-    phone: '+38 (097) 995-55-82',
+    phone: '380979955582',
   },
   {
     name: 'Mcpherson Ferrell',
-    phone: '+38 (068) 818-48-72',
+    phone: '380688184872',
   },
   {
     name: 'Doreen Hudson',
-    phone: '+38 (068) 837-53-43',
+    phone: '380688375343',
   },
   {
     name: 'Ayers Ramsey',
-    phone: '+38 (099) 949-59-53',
+    phone: '380999495953',
   },
   {
     name: 'Marquita Walker',
-    phone: '+38 (098) 843-42-63',
+    phone: '380988434263',
   },
 ]

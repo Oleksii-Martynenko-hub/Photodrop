@@ -1,10 +1,10 @@
 import { FC, useEffect } from 'react'
-import { Box, CircularProgress, Grid, useMediaQuery } from '@mui/material'
+import { Box, Button, CircularProgress, Grid, useMediaQuery } from '@mui/material'
 import CheckCircleOutlineRoundedIcon from '@mui/icons-material/CheckCircleOutlineRounded'
 import { useDropzone } from 'react-dropzone'
 import { motion } from 'framer-motion'
 
-// import { uniqBy } from 'utils/uniq-by'
+import { uniqBy } from 'utils/uniq-by'
 
 import { Image } from 'components/Image'
 
@@ -30,39 +30,55 @@ export const UploadDropZone: FC<Props> = ({ files, setFiles, isUploading }) => {
     setFiles((prev) => prev.map((file) => (file.name === name ? { ...file, progress } : file)))
   }
 
-  const { getRootProps, getInputProps, isDragActive, isDragReject, isFocused } = useDropzone({
-    accept: {
-      'image/*': [],
-    },
-    onDrop: (acceptedFiles) => {
-      const updatedFiles = [
-        ...files,
-        ...acceptedFiles.map((file) => ({
-          name: file.name,
-          file,
-          preview: URL.createObjectURL(file),
-          progress: 0,
-          setUploadProgress,
-        })),
-      ]
+  const { getRootProps, getInputProps, isDragActive, isDragReject, isFocused, fileRejections } =
+    useDropzone({
+      accept: {
+        'image/*': [],
+      },
+      onDrop: (acceptedFiles) => {
+        const updatedFiles = [
+          ...files,
+          ...acceptedFiles.map((file) => ({
+            name: file.name,
+            file,
+            preview: URL.createObjectURL(file),
+            progress: 0,
+            setUploadProgress,
+          })),
+        ]
 
-      setFiles(updatedFiles)
-      // setFiles(uniqBy<DropZoneFiles>(updatedFiles, 'name'))
-    },
-  })
+        setFiles(updatedFiles)
+        // setFiles(uniqBy<DropZoneFiles>(updatedFiles, 'name'))
+      },
+      validator: (file) => {
+        if (files.some(({ name }) => file.name === name)) {
+          return {
+            code: 'duplicate-name',
+            message: 'The filename should be unique',
+          }
+        }
+        return null
+      },
+    })
 
   useEffect(() => {
-    if (isDragReject) console.log('rejected files')
-  }, [isDragReject])
+    if (isDragReject) console.log('rejected files', fileRejections)
+  }, [isDragReject, fileRejections])
 
   useEffect(() => {
     return () => files.forEach((file) => URL.revokeObjectURL(file.preview))
   }, [])
 
+  const handleOnClickFile = (name: string) => (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    e.stopPropagation()
+
+    setFiles(files.filter((file) => file.name !== name))
+  }
+
   return (
     <section
       className='dropzone-image-upload-section'
-      style={{ background: '#eee', padding: '10px', borderRadius: '6px' }}
+      style={{ background: '#eee', padding: md ? '18px' : '10px', borderRadius: '6px' }}
     >
       <Box
         {...getRootProps({
@@ -76,7 +92,7 @@ export const UploadDropZone: FC<Props> = ({ files, setFiles, isUploading }) => {
               : isFocused
               ? '#3300cc'
               : 'gray',
-            padding: '8px',
+            padding: md ? '24px' : sm ? '16px' : '8px',
             borderRadius: '6px',
             position: 'relative',
             minHeight: '100px',
@@ -103,12 +119,19 @@ export const UploadDropZone: FC<Props> = ({ files, setFiles, isUploading }) => {
             </p>
           </motion.div>
         ) : (
-          <Grid container spacing={1}>
+          <Grid container spacing={md ? 3 : sm ? 2 : 1}>
             {files.map(({ preview, progress, name }) => (
               <Grid item xs={6} sm={4} md={3} key={name}>
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                   <Box
-                    sx={{ position: 'relative', border: '1px solid #282828', borderRadius: '5px' }}
+                    sx={{
+                      position: 'relative',
+                      border: '1px solid #282828',
+                      borderRadius: '5px',
+                      cursor: 'pointer',
+                      '&:hover': { outline: '2px solid #db2b2b' },
+                    }}
+                    onClick={handleOnClickFile(name)}
                   >
                     <Image
                       src={preview}
@@ -154,6 +177,11 @@ export const UploadDropZone: FC<Props> = ({ files, setFiles, isUploading }) => {
                 </motion.div>
               </Grid>
             ))}
+            {files.length && (
+              <Grid item xs={12}>
+                <Button>Add more photos</Button>
+              </Grid>
+            )}
           </Grid>
         )}
       </Box>

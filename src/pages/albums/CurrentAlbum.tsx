@@ -59,6 +59,7 @@ const CurrentAlbum: FC = () => {
 
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
+  const [isPhoneValid, setIsPhoneValid] = useState(false)
   const [currentPhoto, setCurrentPhoto] = useState({ src: '', alt: '' })
   const [currentPeople, setCurrentPeople] = useState<PeopleOptionType[]>([])
 
@@ -80,7 +81,16 @@ const CurrentAlbum: FC = () => {
       setCurrentPeople([])
       setIsUploading(false)
     }
+    if (isUploading && status === APIStatus.REJECTED) {
+      setIsUploading(false)
+    }
   }, [status])
+
+  useDidMountEffect(() => {
+    const isFieldsFull = Boolean(files.length) && Boolean(currentPeople.length)
+    const isPhonesValid = currentPeople.every((p) => /^[0-9]{10,13}$/.test(p.phone))
+    setIsPhoneValid(isFieldsFull && isPhonesValid)
+  }, [files, currentPeople])
 
   useEffect(() => {
     if (visible && hasMorePhoto && status !== APIStatus.PENDING && photos && album) {
@@ -143,6 +153,7 @@ const CurrentAlbum: FC = () => {
 
           <LoadingButton
             loading={isUploading}
+            disabled={!isPhoneValid}
             loadingIndicator={
               <CircularProgress size={18} sx={{ position: 'absolute', top: '-9px', left: '2px' }} />
             }
