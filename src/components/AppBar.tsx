@@ -37,7 +37,7 @@ export const AppBar = () => {
     <>
       <HideOnScroll>
         <Bar color='default' sx={headerStyles}>
-          <Toolbar sx={headerStyles}>
+          <Toolbar sx={{ ...headerStyles, maxWidth: '1200px', width: '100%', margin: '0 auto' }}>
             {isShowBackButton && (
               <IconButton onClick={handleOnClickBack} sx={{ position: 'absolute', left: '10px' }}>
                 <ArrowBackIosNewRoundedIcon sx={{ color: '#262626' }} />
