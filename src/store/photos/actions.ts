@@ -153,6 +153,7 @@ export const postUploadPhotosAsync = createAsyncThunk<
         const { file, name, setUploadProgress } = files[fileIndex]
 
         formData.append('key', fields.key)
+        formData.append('originalPhotoKey', fields.originalPhotoKey)
         formData.append('Content-Type', fields['Content-Type'])
         formData.append('x-amz-meta-people', fields['x-amz-meta-people'])
         formData.append('bucket', fields.bucket)
@@ -171,9 +172,9 @@ export const postUploadPhotosAsync = createAsyncThunk<
 
       await Promise.all(postToBucketPromises)
 
-      setTimeout(async () => {
-        await dispatch(getPhotosAsync({ albumId }))
-      }, 3000)
+      // setTimeout(async () => {
+      //   await dispatch(getPhotosAsync({ albumId }))
+      // }, 3000)
     } catch (error) {
       return rejectWithValue(getExceptionPayload(error))
     }

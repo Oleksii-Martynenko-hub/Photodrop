@@ -11,7 +11,7 @@ const selectPhotosReducer = (state: RootState) => state.photosReducer
 
 export const selectPhotosByAlbumId: (
   albumId: number,
-) => Selector<RootState, PhotosList[] | undefined> = (albumId) => {
+) => Selector<RootState, PhotosList[] | undefined | null> = (albumId) => {
   return createSelector(
     selectPhotosReducer,
     ({ photos }) => photos.find((photoList) => photoList.albumId === albumId)?.photosList,
@@ -45,7 +45,7 @@ export const selectHasMorePhotosByAlbumId: (
   )
 }
 
-export const selectPeople: Selector<RootState, People[]> = createSelector(
+export const selectPeople: Selector<RootState, People[] | null> = createSelector(
   selectPhotosReducer,
   ({ people }) => people,
 )

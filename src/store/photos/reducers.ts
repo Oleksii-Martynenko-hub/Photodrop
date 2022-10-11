@@ -23,12 +23,12 @@ export interface Photos {
   count: number
   hasMore: boolean
   page: number
-  photosList: PhotosList[]
+  photosList: PhotosList[] | null
 }
 
 export interface PhotosState {
   photos: Photos[]
-  people: People[]
+  people: People[] | null
   limit: number
   status: APIStatus
   errors: ErrorObject[]
@@ -36,7 +36,7 @@ export interface PhotosState {
 
 const initialState: PhotosState = {
   photos: [],
-  people: [],
+  people: null,
   limit: 10,
   status: APIStatus.IDLE,
   errors: [],
@@ -122,7 +122,10 @@ export const photosSlice = createSlice({
       const photos = state.photos.find((p) => p.albumId === albumId)
 
       if (photos)
-        Object.assign(photos, { photosList: [...photos.photosList, ...photosList], ...other })
+        Object.assign(photos, {
+          photosList: [...(photos.photosList || []), ...(photosList || [])],
+          ...other,
+        })
     })
 
     builder.addCase(getPeopleAsync.pending, pendingCase())

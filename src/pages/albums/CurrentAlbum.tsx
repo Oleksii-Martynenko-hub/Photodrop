@@ -30,6 +30,7 @@ import {
 } from 'store/photos/actions'
 import {
   selectHasMorePhotosByAlbumId,
+  selectPeople,
   selectPhotosByAlbumId,
   selectPhotosPageByAlbumId,
   selectStatus,
@@ -53,6 +54,7 @@ const CurrentAlbum: FC = () => {
   const lg = useMediaQuery('(min-width:1200px)')
 
   const album = useSelector(selectAlbumById(id))
+  const people = useSelector(selectPeople)
   const status = useSelector(selectStatus)
   const statusAlbums = useSelector(selectStatusAlbums)
   const photos = useSelector(selectPhotosByAlbumId(id))
@@ -74,8 +76,8 @@ const CurrentAlbum: FC = () => {
     if (!photos && album) {
       dispatch(getPhotosAsync({ albumId: album.id }))
     }
-    dispatch(getPeopleAsync())
-  }, [])
+    if (!people) dispatch(getPeopleAsync())
+  }, [photos, album, people])
 
   useDidMountEffect(() => {
     if (isUploading && status === APIStatus.FULFILLED) {
@@ -83,6 +85,7 @@ const CurrentAlbum: FC = () => {
       setCurrentPeople([])
       setIsUploading(false)
     }
+
     if (isUploading && status === APIStatus.REJECTED) {
       setIsUploading(false)
     }
@@ -127,7 +130,7 @@ const CurrentAlbum: FC = () => {
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
       <Grid container>
         <Grid item xs sx={{ minWidth: 0, mb: '15px' }}>
-          {status === APIStatus.PENDING || statusAlbums === APIStatus.PENDING ? (
+          {statusAlbums === APIStatus.PENDING ? (
             <Skeleton
               variant='rounded'
               width={120}
@@ -141,7 +144,7 @@ const CurrentAlbum: FC = () => {
         </Grid>
 
         <Grid item sx={{ minWidth: 0 }}>
-          {status === APIStatus.PENDING || statusAlbums === APIStatus.PENDING ? (
+          {statusAlbums === APIStatus.PENDING ? (
             <Skeleton
               variant='rounded'
               width={70}
@@ -155,7 +158,7 @@ const CurrentAlbum: FC = () => {
         </Grid>
 
         <Grid item xs={12} sx={{ minWidth: 0, mb: '15px' }}>
-          {status === APIStatus.PENDING || statusAlbums === APIStatus.PENDING ? (
+          {statusAlbums === APIStatus.PENDING ? (
             <Skeleton
               variant='rounded'
               width={180}

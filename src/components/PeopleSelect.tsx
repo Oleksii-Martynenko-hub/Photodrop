@@ -31,7 +31,7 @@ const PeopleSelect: FC<Props> = ({ currentPeople, setCurrentPeople }) => {
   const [peopleOptions, setPeopleOptions] = useState<PeopleOptionType[]>([])
 
   useEffect(() => {
-    if (people.length)
+    if (people?.length)
       setPeopleOptions(
         uniqBy<PeopleOptionType>(
           [...additionalPeople, ...people.map(({ name, phone }) => ({ name, phone }))],
