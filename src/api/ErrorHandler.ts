@@ -30,6 +30,16 @@ export const getExceptionPayload = (exception: unknown): ErrorObject[] => {
   if (
     ex.hasOwnProperty('response') &&
     typeof ex.response === 'object' &&
+    ex.response.hasOwnProperty('errors')
+  ) {
+    const res = ex.response
+    const { errors } = res as unknown as { errors: ErrorObject[] }
+    return errors
+  }
+
+  if (
+    ex.hasOwnProperty('response') &&
+    typeof ex.response === 'object' &&
     ex.response.hasOwnProperty('data') &&
     typeof ex.response.data === 'object' &&
     ex.response.data.hasOwnProperty('errors') &&

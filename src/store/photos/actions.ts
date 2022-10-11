@@ -22,6 +22,9 @@ export const getPhotosAsync = createAsyncThunk<Photos, { albumId: number }, Thun
         limit,
       })
 
+      // eslint-disable-next-line no-prototype-builtins
+      if (response.hasOwnProperty('errors')) throw { response }
+
       const photoKeys = response.rows.map((photo) => ({ photoKey: photo.name }))
 
       const photoLinks = await protectedApi.postPresignedGetPhotos(photoKeys)

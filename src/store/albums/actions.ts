@@ -16,7 +16,10 @@ export const getAlbumsAsync = createAsyncThunk<AlbumData[], void, ThunkExtra>(
       if (!id) throw new Error('Error getAlbumsAsync: photographerId is missing')
 
       const response = await protectedApi.getAlbums(id)
-      
+
+      // eslint-disable-next-line no-prototype-builtins
+      if (response.hasOwnProperty('errors')) throw { response }
+
       const albumIds = response.map(({ id }) => id)
 
       const icons = await protectedApi.getAlbumIcons(albumIds)
