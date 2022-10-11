@@ -110,6 +110,11 @@ const PeopleSelect: FC<Props> = ({ currentPeople, setCurrentPeople }) => {
         label={option.name || option.phone}
         size='small'
         {...getTagProps({ index })}
+        sx={{
+          padding: '2px 4px',
+          height: '26px',
+          margin: '4px !important',
+        }}
       />
     ))
   }
@@ -122,7 +127,6 @@ const PeopleSelect: FC<Props> = ({ currentPeople, setCurrentPeople }) => {
     <Autocomplete
       multiple
       handleHomeEndKeys
-      size='small'
       value={currentPeople}
       onChange={onChangePeople}
       options={peopleOptions}
@@ -141,6 +145,11 @@ const PeopleSelect: FC<Props> = ({ currentPeople, setCurrentPeople }) => {
             sx: {
               borderRadius: '8px !important',
               backgroundColor: '#F4F4F4',
+              borderBottom: '3px solid white',
+              borderTop: '3px solid white',
+              '& .MuiAutocomplete-endAdornment': {
+                top: '14px',
+              },
             },
           }}
           sx={{
