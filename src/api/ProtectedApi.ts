@@ -29,6 +29,7 @@ export interface PresignedPhotosPostResponse {
   url: string
   fields: {
     key: string
+    originalPhotoKey: string
     'Content-Type': string
     'x-amz-meta-people': string
     bucket: string
