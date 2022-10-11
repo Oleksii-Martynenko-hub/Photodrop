@@ -11,6 +11,7 @@ import {
   Grid,
   ImageList,
   ImageListItem,
+  Skeleton,
   Typography,
   useMediaQuery,
 } from '@mui/material'
@@ -33,7 +34,7 @@ import {
   selectPhotosPageByAlbumId,
   selectStatus,
 } from 'store/photos/selectors'
-import { selectAlbumById } from 'store/albums/selectors'
+import { selectStatus as selectStatusAlbums, selectAlbumById } from 'store/albums/selectors'
 
 import useObserver from 'components/hooks/useObserver'
 import { Image } from 'components/Image'
@@ -53,6 +54,7 @@ const CurrentAlbum: FC = () => {
 
   const album = useSelector(selectAlbumById(id))
   const status = useSelector(selectStatus)
+  const statusAlbums = useSelector(selectStatusAlbums)
   const photos = useSelector(selectPhotosByAlbumId(id))
   const page = useSelector(selectPhotosPageByAlbumId(id))
   const hasMorePhoto = useSelector(selectHasMorePhotosByAlbumId(id))
@@ -124,16 +126,46 @@ const CurrentAlbum: FC = () => {
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
       <Grid container>
-        <Grid item xs sx={{ minWidth: 0 }}>
-          <Name>{album?.name}</Name>
+        <Grid item xs sx={{ minWidth: 0, mb: '15px' }}>
+          {status === APIStatus.PENDING || statusAlbums === APIStatus.PENDING ? (
+            <Skeleton
+              variant='rounded'
+              width={120}
+              height={24}
+              sx={{ bgcolor: '#eee' }}
+              animation='wave'
+            />
+          ) : (
+            <Name>{album?.name}</Name>
+          )}
         </Grid>
 
         <Grid item sx={{ minWidth: 0 }}>
-          <Date>{moment(album?.date).format('DD.MM.YYYY')}</Date>
+          {status === APIStatus.PENDING || statusAlbums === APIStatus.PENDING ? (
+            <Skeleton
+              variant='rounded'
+              width={70}
+              height={12}
+              sx={{ bgcolor: '#eee' }}
+              animation='wave'
+            />
+          ) : (
+            <Date>{moment(album?.date).format('DD.MM.YYYY')}</Date>
+          )}
         </Grid>
 
-        <Grid item xs={12} sx={{ minWidth: 0 }}>
-          <Location>{album?.location}</Location>
+        <Grid item xs={12} sx={{ minWidth: 0, mb: '15px' }}>
+          {status === APIStatus.PENDING || statusAlbums === APIStatus.PENDING ? (
+            <Skeleton
+              variant='rounded'
+              width={180}
+              height={16}
+              sx={{ bgcolor: '#eee' }}
+              animation='wave'
+            />
+          ) : (
+            <Location>{album?.location}</Location>
+          )}
         </Grid>
       </Grid>
 
@@ -217,7 +249,7 @@ const Name = styled(Typography)`
   line-height: 1.1;
   font-weight: 600;
   font-size: 20px;
-  margin-bottom: 15px;
+  /* margin-bottom: 15px; */
   margin-right: 24px;
 `
 
@@ -225,7 +257,7 @@ const Location = styled(Typography)`
   color: #141414;
   line-height: 1.2;
   font-size: 16px;
-  margin-bottom: 15px;
+  /* margin-bottom: 15px; */
 `
 
 const Date = styled(Typography)`
