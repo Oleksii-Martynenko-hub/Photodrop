@@ -3,7 +3,9 @@ import { Navigate } from 'react-router'
 import { useSelector } from 'react-redux'
 
 import { ERoutes } from 'pages/App'
-import { selectIsLoggedIn } from 'store/login/selectors'
+import { selectIsLoggedIn, selectStatus } from 'store/login/selectors'
+import { APIStatus } from 'api/MainApi'
+import { FullPageLoader } from 'components/FullPageLoader'
 
 interface Props {
   element: React.FC
@@ -11,8 +13,11 @@ interface Props {
 
 const ProtectedRoute: React.FC<Props> = ({ element: Element }) => {
   const isLoggedIn = useSelector(selectIsLoggedIn)
+  const statusLogin = useSelector(selectStatus)
 
-  return <>{isLoggedIn ? <Element /> : <Navigate to={ERoutes.ROOT} replace />}</>
+  if (statusLogin === APIStatus.PENDING) return <FullPageLoader />
+
+  return <>{isLoggedIn ? <Element /> : <Navigate to={ERoutes.LOGIN} replace />}</>
 }
 
 export default ProtectedRoute
