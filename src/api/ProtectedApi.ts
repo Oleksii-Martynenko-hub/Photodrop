@@ -82,6 +82,10 @@ class ProtectedApi extends HttpClientProtected {
     return this.classInstance
   }
 
+  public getMe = () => {
+    return this.instance.get<[]>('/get-me')
+  }
+
   public postCreateAlbum = (newAlbum: CreateAlbumData) =>
     this.instance.post<AlbumData>('/create-album', newAlbum)
 

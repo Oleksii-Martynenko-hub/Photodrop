@@ -50,6 +50,12 @@ export const loginSlice = createSlice({
         state.status = APIStatus.FULFILLED
       }
     },
+    setLoginStatus: (state, action: { payload: APIStatus }) => {
+      state.status = action.payload
+    },
+    setIsLoggedIn: (state, action: { payload: boolean }) => {
+      state.isLoggedIn = action.payload
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(loginAsync.pending, pendingCase())
@@ -65,6 +71,7 @@ export const loginSlice = createSlice({
   },
 })
 
-export const { clearToken, clearLoginState, checkToken } = loginSlice.actions
+export const { clearToken, clearLoginState, checkToken, setLoginStatus, setIsLoggedIn } =
+  loginSlice.actions
 
 export default loginSlice.reducer

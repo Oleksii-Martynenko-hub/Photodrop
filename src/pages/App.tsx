@@ -7,6 +7,7 @@ import { theme } from 'themes/palette'
 import { GlobalStyles } from 'themes/global'
 
 import { store, history } from 'store'
+import { restoreAuthAsync } from 'store/login/actions'
 
 import { AppBar } from 'components/AppBar'
 import AnimatedRoutes from 'containers/AnimatedRoutes'
@@ -33,6 +34,8 @@ const containerStyles: SxProps<Theme> = {
   alignItems: 'start',
   position: 'relative',
 }
+
+store.dispatch(restoreAuthAsync())
 
 const App = () => {
   return (

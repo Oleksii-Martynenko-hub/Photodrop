@@ -23,7 +23,6 @@ import { useInput } from 'components/hooks/useInput'
 import { useDidMountEffect } from 'components/hooks/useDidMountEffect'
 
 import { loginAsync } from 'store/login/actions'
-import { checkToken } from 'store/login/reducers'
 import { selectErrors, selectIsLoggedIn, selectStatus } from 'store/login/selectors'
 
 import { ERoutes } from 'pages/App'
@@ -44,10 +43,6 @@ const Login: FC = () => {
   const [isShowPassword, setShowPassword] = useToggle(false)
 
   useEffect(() => {
-    dispatch(checkToken())
-  }, [])
-
-  useEffect(() => {
     if (status === APIStatus.REJECTED) {
       if (errors.length) {
         errors.forEach((error) => {
@@ -62,15 +57,7 @@ const Login: FC = () => {
             setPasswordValidation({ isValid: false, message: 'Password is not correct.' })
           }
         })
-
-        return
       }
-
-      setLoginValidation({ isValid: false, message: '' })
-      setPasswordValidation({
-        isValid: false,
-        message: 'Something went wrong.',
-      })
     }
   }, [status, errors])
 
@@ -132,19 +119,13 @@ const Login: FC = () => {
         <Navigate to={ERoutes.ALBUMS} replace />
       ) : (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-          <Grid container justifyContent='center' sx={{ paddingTop: { xs: 6, md: 9 } }}>
+          <Grid container justifyContent='center' sx={{ paddingTop: { xs: 12, md: 15 } }}>
             <Grid
               container
               spacing={{ xs: 2, md: 3 }}
               justifyContent='center'
               sx={{ flex: { xs: '0 1 400px', md: '0 0 600px' } }}
             >
-              <Grid item xs={12} md={12}>
-                <Typography variant='h2' align='center' gutterBottom>
-                  Login
-                </Typography>
-              </Grid>
-
               <Grid item xs={12} md={12}>
                 <Typography variant='h6' align='center'>
                   Enter your name and password
