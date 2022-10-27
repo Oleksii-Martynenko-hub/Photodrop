@@ -44,7 +44,8 @@ import { Image } from 'components/Image'
 import PeopleSelect, { PeopleOptionType } from 'components/PeopleSelect'
 import { LoadingButton } from '@mui/lab'
 import { useDidMountEffect } from 'components/hooks/useDidMountEffect'
-import { selectUserId } from 'store/user/selectors'
+// import { convertFileToDataURL } from 'utils/convert-file-to-data-url'
+// import { addPhotosByAlbumId } from 'store/photos/reducers'
 
 const CurrentAlbum: FC = () => {
   const id = useParams<{ id: string }>().id || ''
@@ -56,7 +57,6 @@ const CurrentAlbum: FC = () => {
   const lg = useMediaQuery('(min-width:1200px)')
 
   const album = useSelector(selectAlbumById(id))
-  const userId = useSelector(selectUserId)
   const people = useSelector(selectPeople)
   const status = useSelector(selectStatus)
   const statusAlbums = useSelector(selectStatusAlbums)
@@ -73,6 +73,7 @@ const CurrentAlbum: FC = () => {
   const [files, setFiles] = useState<UppyFile<Record<string, unknown>, Record<string, unknown>>[]>(
     [],
   )
+  // const [fileKeys, setFileKeys] = useState<{ id: string; key: string }[]>([])
 
   const observerRef = useRef<HTMLDivElement>(null)
   const visible = useObserver(observerRef, '100px')
@@ -106,6 +107,8 @@ const CurrentAlbum: FC = () => {
           people,
         })
 
+        // setFileKeys([...fileKeys, { id: file.id, key: fields.key }])
+
         return Promise.resolve({
           method: 'POST',
           url,
@@ -115,18 +118,70 @@ const CurrentAlbum: FC = () => {
     })
   })
 
-  uppy.on('files-added', (uppyFiles) => {
-    setFiles(uppyFiles)
-  })
-
-  uppy.on('complete', ({ successful, failed }) => {
-    console.log('successful files:', successful)
-    console.log('failed files:', failed)
-
-    if (!failed.length) {
-      toast.success('All photos were successfully uploaded')
+  useEffect(() => {
+    const filesAddedHandler = (uppyFiles: UppyFile[]) => {
+      setFiles(uppyFiles)
     }
-  })
+
+    const completeHandler = ({
+      successful,
+      failed,
+    }: {
+      successful: UppyFile[]
+      failed: UppyFile[]
+    }) => {
+      console.log('successful files:', successful)
+      console.log('failed files:', failed)
+
+      if (!failed.length) {
+        toast.success('All photos were successfully uploaded', { autoClose: 1500 })
+      }
+      setTimeout(() => {
+        // successful.forEach(async (file) => {
+        //   const typedFile = file as UppyFile & {
+        //     albumId: string
+        //     photographerId: string
+        //   }
+        //   uppy.removeFile(file.id)
+
+        //   const imageDataUrl = await convertFileToDataURL(file.data)
+        //   const id = fileKeys.find(({ id }) => file.id === id)?.key
+        //   console.log('🚀 ~ successful.forEach ~ fileKeys', fileKeys)
+
+        //   if (typedFile && imageDataUrl && id) {
+        //     const photo = {
+        //       albumId: typedFile.id,
+        //       id: id.split('.')[0],
+        //       name: file.name,
+        //       photoLink: imageDataUrl.toString(),
+        //       photoUrl: imageDataUrl.toString(),
+        //       photographerId: typedFile.photographerId,
+        //     }
+
+        //     dispatch(addPhotosByAlbumId({ albumId: typedFile.id, newPhotosList: [photo] }))
+        //   }
+        // })
+
+        const typedFile = successful[0] as UppyFile & {
+          albumId: string
+          photographerId: string
+        }
+
+        dispatch(getPhotosAsync({ albumId: typedFile.albumId }))
+        setFiles([])
+        // setFileKeys([])
+      }, 3000)
+    }
+
+    uppy.on('files-added', filesAddedHandler)
+
+    uppy.on('complete', completeHandler)
+
+    return () => {
+      uppy.off('files-added', filesAddedHandler)
+      uppy.off('complete', completeHandler)
+    }
+  }, [])
 
   useEffect(() => {
     if (currentPeople.length) {

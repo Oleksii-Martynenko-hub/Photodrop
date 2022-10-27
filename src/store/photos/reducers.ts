@@ -13,6 +13,7 @@ import {
   postUploadPhotosAsync,
 } from 'store/photos/actions'
 import { errorToast } from 'store/login/reducers'
+import { uniqBy } from 'utils/uniq-by'
 
 export interface PhotosList extends PhotosData {
   photoLink: string
@@ -69,6 +70,24 @@ export const photosSlice = createSlice({
       const photos = state.photos.find(({ albumId }) => albumId === payload.albumId)
       if (photos) photos.hasMore = payload.hasMore
     },
+    addPhotosByAlbumId: (
+      state: PhotosState,
+      { payload }: PayloadAction<{ albumId: string; newPhotosList: PhotosList[] }>,
+    ) => {
+      const { albumId, newPhotosList } = payload
+      console.log('🚀 ~ newPhotosList', newPhotosList)
+
+      const photosByAlbumId = state.photos.find((p) => p.albumId === albumId)
+
+      if (photosByAlbumId) {
+        const { photosList, ...other } = photosByAlbumId
+
+        Object.assign(photosByAlbumId, {
+          photosList: [...(photosList || []), ...(newPhotosList || [])],
+          ...other,
+        })
+      }
+    },
     clearPhotosState: () => initialState,
   },
 
@@ -121,11 +140,17 @@ export const photosSlice = createSlice({
 
       const photos = state.photos.find((p) => p.albumId === albumId)
 
-      if (photos)
+      if (photos) {
+        const updatedPhotoList = uniqBy<PhotosList>(
+          [...(photos.photosList || []), ...(photosList || [])],
+          'id',
+        )
+
         Object.assign(photos, {
-          photosList: [...(photos.photosList || []), ...(photosList || [])],
+          photosList: updatedPhotoList,
           ...other,
         })
+      }
     })
 
     builder.addCase(getPeopleAsync.pending, pendingCase())
@@ -161,6 +186,6 @@ export const photosSlice = createSlice({
   },
 })
 
-export const { clearPhotosState } = photosSlice.actions
+export const { clearPhotosState, addPhotosByAlbumId } = photosSlice.actions
 
 export default photosSlice.reducer

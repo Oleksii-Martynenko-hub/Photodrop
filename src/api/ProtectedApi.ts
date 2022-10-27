@@ -63,7 +63,7 @@ export interface People {
   unsubscribe: boolean
 }
 
-export interface PhotosData extends Omit<AlbumData, 'date' | 'location'> {
+export interface PhotosData extends Omit<AlbumData, 'date' | 'location' | 'icon'> {
   photoUrl: string
   albumId: string
 }

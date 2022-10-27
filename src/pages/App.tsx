@@ -46,7 +46,15 @@ const App = () => {
             <CssBaseline />
             <GlobalStyles />
 
-            <ToastContainer transition={Slide} />
+            <ToastContainer
+              transition={Slide}
+              position='top-center'
+              hideProgressBar
+              closeOnClick
+              draggable
+              autoClose={3000}
+              progressStyle={undefined}
+            />
 
             <AppBar />
 
