@@ -19,15 +19,17 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import { motion } from 'framer-motion'
 import styled from 'styled-components'
 import moment from 'moment'
+import Uppy, { UppyFile } from '@uppy/core'
+import { Dashboard, useUppy } from '@uppy/react'
+import AwsS3 from '@uppy/aws-s3'
+import '@uppy/core/dist/style.css'
+import '@uppy/dashboard/dist/style.css'
+import { toast } from 'react-toastify'
 
 import { APIStatus } from 'api/MainApi'
+import ProtectedApi, { PhotosArray } from 'api/ProtectedApi'
 
-import {
-  getMorePhotosAsync,
-  getPeopleAsync,
-  getPhotosAsync,
-  postUploadPhotosAsync,
-} from 'store/photos/actions'
+import { getMorePhotosAsync, getPeopleAsync, getPhotosAsync } from 'store/photos/actions'
 import {
   selectHasMorePhotosByAlbumId,
   selectPeople,
@@ -39,13 +41,12 @@ import { selectStatus as selectStatusAlbums, selectAlbumById } from 'store/album
 
 import useObserver from 'components/hooks/useObserver'
 import { Image } from 'components/Image'
-import { DropZoneFiles, UploadDropZone } from 'components/UploadDropZone'
 import PeopleSelect, { PeopleOptionType } from 'components/PeopleSelect'
 import { LoadingButton } from '@mui/lab'
 import { useDidMountEffect } from 'components/hooks/useDidMountEffect'
 
 const CurrentAlbum: FC = () => {
-  const id = +(useParams<{ id: string }>().id || '')
+  const id = useParams<{ id: string }>().id || ''
 
   const dispatch = useDispatch()
 
@@ -67,10 +68,67 @@ const CurrentAlbum: FC = () => {
   const [currentPhoto, setCurrentPhoto] = useState({ src: '', alt: '' })
   const [currentPeople, setCurrentPeople] = useState<PeopleOptionType[]>([])
 
-  const [files, setFiles] = useState<DropZoneFiles[]>([])
+  const [files, setFiles] = useState<UppyFile<Record<string, unknown>, Record<string, unknown>>[]>(
+    [],
+  )
 
   const observerRef = useRef<HTMLDivElement>(null)
   const visible = useObserver(observerRef, '100px')
+
+  const uppy = useUppy(() => {
+    return new Uppy({
+      id: 'addPhotosToAlbum',
+      restrictions: {
+        maxNumberOfFiles: 100,
+      },
+    }).use(AwsS3, {
+      getUploadParameters: async (file: UppyFile) => {
+        const typedFile = file as UppyFile & { people: string[] }
+        const api = ProtectedApi.getInstance()
+
+        const photo: PhotosArray = [
+          { photographerId: id },
+          { albumId: album?.id || '' },
+          { photoName: file.name },
+          { 'Content-Type': file.type || 'image/jpg' },
+        ]
+
+        const people = typedFile.people
+
+        const [{ fields, url }] = await api.postPresignedPostPhotos({
+          photosArray: [photo],
+          people,
+        })
+
+        return Promise.resolve({
+          method: 'POST',
+          url,
+          fields: { ...fields },
+        })
+      },
+    })
+  })
+
+  uppy.on('files-added', (uppyFiles) => {
+    setFiles(uppyFiles)
+  })
+
+  uppy.on('complete', ({ successful, failed }) => {
+    console.log('successful files:', successful)
+    console.log('failed files:', failed)
+
+    if (!failed.length) {
+      toast.success('All photos were successfully uploaded')
+    }
+  })
+
+  useEffect(() => {
+    if (currentPeople.length) {
+      files.forEach((file) => {
+        uppy.setFileState(file.id, { people: currentPeople.map((p) => p.phone) })
+      })
+    }
+  }, [currentPeople])
 
   useEffect(() => {
     if (!photos && album) {
@@ -105,15 +163,10 @@ const CurrentAlbum: FC = () => {
 
   const onClickUploadPhotos = () => {
     if (files.length && album) {
-      setIsUploading(true)
-
-      dispatch(
-        postUploadPhotosAsync({
-          files,
-          people: currentPeople.map((p) => p.phone),
-          albumId: album.id,
-        }),
-      )
+      uppy
+        .upload()
+        .then((res) => console.log('uppy res', res))
+        .catch((err) => console.log('uppy err', err))
     }
   }
 
@@ -178,9 +231,9 @@ const CurrentAlbum: FC = () => {
         </AccordionSummary>
 
         <AccordionDetails>
-          <Box mb='15px'>
-            <UploadDropZone files={files} setFiles={setFiles} isUploading={isUploading} />
-          </Box>
+          <UppyDashboardWrapper>
+            <Dashboard uppy={uppy} hideUploadButton width={311} height={400} />
+          </UppyDashboardWrapper>
 
           <Box mb='15px'>
             <PeopleSelect currentPeople={currentPeople} setCurrentPeople={setCurrentPeople} />
@@ -269,4 +322,16 @@ const Date = styled(Typography)`
   font-size: 13px;
   display: block;
   text-align: right;
+`
+
+const UppyDashboardWrapper = styled.div`
+  margin-bottom: 15px;
+
+  & .uppy-Dashboard-inner {
+    border-radius: 8px;
+  }
+
+  & .uppy-Dashboard-AddFiles {
+    border-radius: 7px;
+  }
 `

@@ -7,7 +7,7 @@ import { ThunkExtra } from 'store'
 import { Photos } from './reducers'
 import { DropZoneFiles } from 'components/UploadDropZone'
 
-export const getPhotosAsync = createAsyncThunk<Photos, { albumId: number }, ThunkExtra>(
+export const getPhotosAsync = createAsyncThunk<Photos, { albumId: string }, ThunkExtra>(
   'photos/getPhotosAsync',
   async ({ albumId }, { rejectWithValue, extra: { protectedApi }, getState }) => {
     try {
@@ -117,7 +117,7 @@ export const postUploadPhotosAsync = createAsyncThunk<
   {
     files: DropZoneFiles[]
     people: string[]
-    albumId: number
+    albumId: string
   },
   ThunkExtra
 >(

@@ -19,7 +19,7 @@ export interface PhotosList extends PhotosData {
 }
 
 export interface Photos {
-  albumId: number
+  albumId: string
   count: number
   hasMore: boolean
   page: number
@@ -48,7 +48,7 @@ export const photosSlice = createSlice({
   reducers: {
     setPageByAlbumId: (
       state: PhotosState,
-      { payload }: PayloadAction<{ albumId: number; page: number }>,
+      { payload }: PayloadAction<{ albumId: string; page: number }>,
     ) => {
       const photos = state.photos.find(({ albumId }) => albumId === payload.albumId)
       if (photos) photos.page = payload.page
@@ -56,7 +56,7 @@ export const photosSlice = createSlice({
 
     setCountByAlbumId: (
       state: PhotosState,
-      { payload }: PayloadAction<{ albumId: number; count: number }>,
+      { payload }: PayloadAction<{ albumId: string; count: number }>,
     ) => {
       const photos = state.photos.find(({ albumId }) => albumId === payload.albumId)
       if (photos) photos.count = payload.count
@@ -64,7 +64,7 @@ export const photosSlice = createSlice({
 
     setHasMorePhotosByAlbumId: (
       state: PhotosState,
-      { payload }: PayloadAction<{ albumId: number; hasMore: boolean }>,
+      { payload }: PayloadAction<{ albumId: string; hasMore: boolean }>,
     ) => {
       const photos = state.photos.find(({ albumId }) => albumId === payload.albumId)
       if (photos) photos.hasMore = payload.hasMore

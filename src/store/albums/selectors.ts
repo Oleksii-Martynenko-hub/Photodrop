@@ -13,7 +13,7 @@ export const selectAlbums: Selector<RootState, AlbumData[]> = createSelector(
   ({ albums }) => albums,
 )
 
-export const selectAlbumById: (albumId: number) => Selector<RootState, AlbumData | undefined> = (
+export const selectAlbumById: (albumId: string) => Selector<RootState, AlbumData | undefined> = (
   albumId,
 ) =>
   createSelector(selectAlbumsReducer, ({ albums }) => albums.find((album) => album.id === albumId))

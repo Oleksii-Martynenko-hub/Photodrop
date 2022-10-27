@@ -7,14 +7,14 @@ import { ErrorObject } from 'api/ErrorHandler'
 import Tokens from 'utils/local-storage/tokens'
 
 export type TokenDecodeData = {
-  id: number
+  id: string
   login: string
   iat: number
   exp: number
 }
 
 export interface UsersState {
-  id: number | undefined
+  id: string | undefined
   login: string | undefined
   status: APIStatus
   errors: ErrorObject[]

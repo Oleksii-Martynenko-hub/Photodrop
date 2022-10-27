@@ -10,7 +10,7 @@ import { People } from 'api/ProtectedApi'
 const selectPhotosReducer = (state: RootState) => state.photosReducer
 
 export const selectPhotosByAlbumId: (
-  albumId: number,
+  albumId: string,
 ) => Selector<RootState, PhotosList[] | undefined | null> = (albumId) => {
   return createSelector(
     selectPhotosReducer,
@@ -18,16 +18,16 @@ export const selectPhotosByAlbumId: (
   )
 }
 
-export const selectPhotoCountByAlbumId: (
-  albumId: number,
-) => Selector<RootState, number | undefined> = (albumId) => {
+export const selectPhotoCountByAlbumId: (albumId: string) => Selector<RootState, number | undefined> = (
+  albumId,
+) => {
   return createSelector(
     selectPhotosReducer,
     ({ photos }) => photos.find((photoList) => photoList.albumId === albumId)?.count,
   )
 }
 
-export const selectPhotosPageByAlbumId: (albumId: number) => Selector<RootState, number> = (
+export const selectPhotosPageByAlbumId: (albumId: string) => Selector<RootState, number> = (
   albumId,
 ) => {
   return createSelector(
@@ -37,7 +37,7 @@ export const selectPhotosPageByAlbumId: (albumId: number) => Selector<RootState,
 }
 
 export const selectHasMorePhotosByAlbumId: (
-  albumId: number,
+  albumId: string,
 ) => Selector<RootState, boolean | undefined> = (albumId) => {
   return createSelector(
     selectPhotosReducer,

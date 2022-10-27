@@ -4,19 +4,19 @@ import HttpClientProtected from 'api/HttpClientProtected'
 export const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080/api'
 
 export type AlbumData = {
-  id: number
+  id: string
   name: string
   location: string
   date: string
-  photographerId: number
+  photographerId: string
   icon: string | null
 }
 
 export interface CreateAlbumData extends Omit<AlbumData, 'id' | 'icon'> {}
 
 export type PhotosArray = [
-  { photographerId: number },
-  { albumId: number },
+  { photographerId: string },
+  { albumId: string },
   { photoName: string },
   { 'Content-Type': string },
 ]
@@ -47,14 +47,14 @@ export interface GetPhotosResponse {
 }
 
 export interface GetPhotosBody {
-  photographerId: number
-  albumId: number
+  photographerId: string
+  albumId: string
   page?: number
   limit?: number
 }
 
 export interface People {
-  id: number
+  id: string
   name: string | null
   phone: string
   email: string | null
@@ -65,7 +65,7 @@ export interface People {
 
 export interface PhotosData extends Omit<AlbumData, 'date' | 'location'> {
   photoUrl: string
-  albumId: number
+  albumId: string
 }
 
 class ProtectedApi extends HttpClientProtected {
@@ -90,11 +90,11 @@ class ProtectedApi extends HttpClientProtected {
   public postCreateAlbum = (newAlbum: CreateAlbumData) =>
     this.instance.post<AlbumData>('/create-album', newAlbum)
 
-  public getAlbums = (photographerId: number) => {
+  public getAlbums = (photographerId: string) => {
     return this.instance.get<AlbumData[]>('/get-albums-from-db', { params: { photographerId } })
   }
 
-  public getAlbumIcons = (albumIds: number[]) => {
+  public getAlbumIcons = (albumIds: string[]) => {
     return this.instance.post<{ [k: string]: string | null }>('/get-albums-thumbnail-icons', {
       albumIds,
     })
