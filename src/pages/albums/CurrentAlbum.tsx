@@ -44,6 +44,7 @@ import { Image } from 'components/Image'
 import PeopleSelect, { PeopleOptionType } from 'components/PeopleSelect'
 import { LoadingButton } from '@mui/lab'
 import { useDidMountEffect } from 'components/hooks/useDidMountEffect'
+import { selectUserId } from 'store/user/selectors'
 
 const CurrentAlbum: FC = () => {
   const id = useParams<{ id: string }>().id || ''
@@ -55,6 +56,7 @@ const CurrentAlbum: FC = () => {
   const lg = useMediaQuery('(min-width:1200px)')
 
   const album = useSelector(selectAlbumById(id))
+  const userId = useSelector(selectUserId)
   const people = useSelector(selectPeople)
   const status = useSelector(selectStatus)
   const statusAlbums = useSelector(selectStatusAlbums)
@@ -83,17 +85,21 @@ const CurrentAlbum: FC = () => {
       },
     }).use(AwsS3, {
       getUploadParameters: async (file: UppyFile) => {
-        const typedFile = file as UppyFile & { people: string[] }
+        const typedFile = file as UppyFile & {
+          people: string[]
+          albumId: string
+          photographerId: string
+        }
         const api = ProtectedApi.getInstance()
 
+        const { people, albumId, photographerId } = typedFile
+
         const photo: PhotosArray = [
-          { photographerId: id },
-          { albumId: album?.id || '' },
+          { photographerId },
+          { albumId },
           { photoName: file.name },
           { 'Content-Type': file.type || 'image/jpg' },
         ]
-
-        const people = typedFile.people
 
         const [{ fields, url }] = await api.postPresignedPostPhotos({
           photosArray: [photo],
@@ -125,7 +131,11 @@ const CurrentAlbum: FC = () => {
   useEffect(() => {
     if (currentPeople.length) {
       files.forEach((file) => {
-        uppy.setFileState(file.id, { people: currentPeople.map((p) => p.phone) })
+        uppy.setFileState(file.id, {
+          people: currentPeople.map((p) => p.phone),
+          albumId: album?.id || '',
+          photographerId: album?.photographerId || '',
+        })
       })
     }
   }, [currentPeople])
