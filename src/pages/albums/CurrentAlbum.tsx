@@ -112,7 +112,10 @@ const CurrentAlbum: FC = () => {
         return Promise.resolve({
           method: 'POST',
           url,
-          fields: { ...fields },
+          fields: {
+            ...fields,
+            // 'x-amz-fwd-header-Content-Disposition': `attachment; filename=${fields.key}`,
+          },
         })
       },
     })
@@ -297,7 +300,7 @@ const CurrentAlbum: FC = () => {
 
         <AccordionDetails>
           <UppyDashboardWrapper>
-            <Dashboard uppy={uppy} hideUploadButton width={311} height={400} />
+            <Dashboard uppy={uppy} hideUploadButton width={'100%'} height={'100%'} />
           </UppyDashboardWrapper>
 
           <Box mb='15px'>
