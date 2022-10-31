@@ -6,10 +6,11 @@ import { getExceptionPayload } from 'api/ErrorHandler'
 import { ThunkExtra } from 'store'
 import { Photos } from './reducers'
 import { DropZoneFiles } from 'components/UploadDropZone'
+import { logoutIfTokenInvalid } from 'store/login/actions'
 
 export const getPhotosAsync = createAsyncThunk<Photos, { albumId: string }, ThunkExtra>(
   'photos/getPhotosAsync',
-  async ({ albumId }, { rejectWithValue, extra: { protectedApi }, getState }) => {
+  async ({ albumId }, { rejectWithValue, extra: { protectedApi }, getState, dispatch }) => {
     try {
       const { id } = getState().userReducer
       const { limit } = getState().photosReducer
@@ -47,6 +48,7 @@ export const getPhotosAsync = createAsyncThunk<Photos, { albumId: string }, Thun
         photosList: formattedPhotos,
       }
     } catch (error) {
+      dispatch(logoutIfTokenInvalid(error))
       return rejectWithValue(getExceptionPayload(error))
     }
   },
@@ -58,7 +60,10 @@ export const getMorePhotosAsync = createAsyncThunk<
   ThunkExtra
 >(
   'photos/getMorePhotosAsync',
-  async ({ albumId, page = 1 }, { rejectWithValue, extra: { protectedApi }, getState }) => {
+  async (
+    { albumId, page = 1 },
+    { rejectWithValue, extra: { protectedApi }, getState, dispatch },
+  ) => {
     try {
       const { id } = getState().userReducer
       const { limit } = getState().photosReducer
@@ -94,6 +99,7 @@ export const getMorePhotosAsync = createAsyncThunk<
         photosList: formattedPhotos,
       }
     } catch (error) {
+      dispatch(logoutIfTokenInvalid(error))
       return rejectWithValue(getExceptionPayload(error))
     }
   },
@@ -101,12 +107,13 @@ export const getMorePhotosAsync = createAsyncThunk<
 
 export const getPeopleAsync = createAsyncThunk<People[], void, ThunkExtra>(
   'photos/getPeopleAsync',
-  async (_, { rejectWithValue, extra: { protectedApi } }) => {
+  async (_, { rejectWithValue, extra: { protectedApi }, dispatch }) => {
     try {
       const response = await protectedApi.getAllPeople()
 
       return response.people
     } catch (error) {
+      dispatch(logoutIfTokenInvalid(error))
       return rejectWithValue(getExceptionPayload(error))
     }
   },
@@ -176,6 +183,8 @@ export const postUploadPhotosAsync = createAsyncThunk<
       //   await dispatch(getPhotosAsync({ albumId }))
       // }, 3000)
     } catch (error) {
+
+      dispatch(logoutIfTokenInvalid(error))
       return rejectWithValue(getExceptionPayload(error))
     }
   },

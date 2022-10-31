@@ -5,6 +5,7 @@ import { getExceptionPayload } from 'api/ErrorHandler'
 
 import { ThunkExtra } from 'store'
 import { setUserData } from 'store/user/reducers'
+import { logoutIfTokenInvalid } from 'store/login/actions'
 
 export const getAlbumsAsync = createAsyncThunk<AlbumData[], void, ThunkExtra>(
   'albums/getAlbumsAsync',
@@ -38,6 +39,7 @@ export const getAlbumsAsync = createAsyncThunk<AlbumData[], void, ThunkExtra>(
 
       return albumsWithIcons as AlbumData[]
     } catch (error) {
+      dispatch(logoutIfTokenInvalid(error))
       return rejectWithValue(getExceptionPayload(error))
     }
   },
@@ -49,7 +51,7 @@ export const postCreateAlbumAsync = createAsyncThunk<
   ThunkExtra
 >(
   'albums/postCreateAlbumAsync',
-  async (albumData, { rejectWithValue, extra: { protectedApi }, getState }) => {
+  async (albumData, { rejectWithValue, extra: { protectedApi }, getState, dispatch }) => {
     try {
       const { id } = getState().userReducer
 
@@ -62,6 +64,7 @@ export const postCreateAlbumAsync = createAsyncThunk<
 
       return response
     } catch (error) {
+      dispatch(logoutIfTokenInvalid(error))
       return rejectWithValue(getExceptionPayload(error))
     }
   },

@@ -31,13 +31,7 @@ export const albumsSlice = createSlice({
     builder.addCase(getAlbumsAsync.pending, pendingCase())
     builder.addCase(
       getAlbumsAsync.rejected,
-      rejectedCase((_, action) => {
-        if (action.payload) {
-          action.payload.forEach((error) => {
-            toast.error(...errorToast(error.msg))
-          })
-        }
-      }),
+      rejectedCase((_, { payload }) => errorToast(payload)),
     )
     builder.addCase(getAlbumsAsync.fulfilled, (state, action) => {
       state.status = APIStatus.FULFILLED
@@ -47,13 +41,7 @@ export const albumsSlice = createSlice({
     builder.addCase(postCreateAlbumAsync.pending, pendingCase())
     builder.addCase(
       postCreateAlbumAsync.rejected,
-      rejectedCase((_, action) => {
-        if (action.payload) {
-          action.payload.forEach((error) => {
-            toast.error(...errorToast(error.msg))
-          })
-        }
-      }),
+      rejectedCase((_, { payload }) => errorToast(payload)),
     )
     builder.addCase(postCreateAlbumAsync.fulfilled, (state, action) => {
       state.status = APIStatus.FULFILLED

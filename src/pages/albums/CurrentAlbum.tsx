@@ -19,7 +19,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import { motion } from 'framer-motion'
 import styled from 'styled-components'
 import moment from 'moment'
-import Uppy, { UppyFile } from '@uppy/core'
+import Uppy, { FileRemoveReason, UppyFile } from '@uppy/core'
 import { Dashboard, useUppy } from '@uppy/react'
 import AwsS3 from '@uppy/aws-s3'
 import '@uppy/core/dist/style.css'
@@ -66,6 +66,7 @@ const CurrentAlbum: FC = () => {
 
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
+  const [isLoadingPhotos, setIsLoadingPhotos] = useState(false)
   const [isPhoneValid, setIsPhoneValid] = useState(false)
   const [currentPhoto, setCurrentPhoto] = useState({ src: '', alt: '' })
   const [currentPeople, setCurrentPeople] = useState<PeopleOptionType[]>([])
@@ -114,7 +115,6 @@ const CurrentAlbum: FC = () => {
           url,
           fields: {
             ...fields,
-            // 'x-amz-fwd-header-Content-Disposition': `attachment; filename=${fields.key}`,
           },
         })
       },
@@ -124,6 +124,10 @@ const CurrentAlbum: FC = () => {
   useEffect(() => {
     const filesAddedHandler = (uppyFiles: UppyFile[]) => {
       setFiles(uppyFiles)
+    }
+
+    const fileRemovedHandler = (file: UppyFile, reason: FileRemoveReason) => {
+      setFiles((prev) => prev.filter((f) => f.id !== file.id))
     }
 
     const completeHandler = ({
@@ -140,30 +144,30 @@ const CurrentAlbum: FC = () => {
         toast.success('All photos were successfully uploaded', { autoClose: 1500 })
       }
       setTimeout(() => {
-        // successful.forEach(async (file) => {
-        //   const typedFile = file as UppyFile & {
-        //     albumId: string
-        //     photographerId: string
-        //   }
-        //   uppy.removeFile(file.id)
+        successful.forEach(async (file) => {
+          const typedFile = file as UppyFile & {
+            albumId: string
+            photographerId: string
+          }
+          // uppy.removeFile(file.id)
 
-        //   const imageDataUrl = await convertFileToDataURL(file.data)
-        //   const id = fileKeys.find(({ id }) => file.id === id)?.key
-        //   console.log('🚀 ~ successful.forEach ~ fileKeys', fileKeys)
+          // const imageDataUrl = await convertFileToDataURL(file.data)
+          // const id = fileKeys.find(({ id }) => file.id === id)?.key
+          // console.log('🚀 ~ successful.forEach ~ fileKeys', fileKeys)
 
-        //   if (typedFile && imageDataUrl && id) {
-        //     const photo = {
-        //       albumId: typedFile.id,
-        //       id: id.split('.')[0],
-        //       name: file.name,
-        //       photoLink: imageDataUrl.toString(),
-        //       photoUrl: imageDataUrl.toString(),
-        //       photographerId: typedFile.photographerId,
-        //     }
+          // if (typedFile && imageDataUrl && id) {
+          //   const photo = {
+          //     albumId: typedFile.id,
+          //     id: id.split('.')[0],
+          //     name: file.name,
+          //     photoLink: imageDataUrl.toString(),
+          //     photoUrl: imageDataUrl.toString(),
+          //     photographerId: typedFile.photographerId,
+          //   }
 
-        //     dispatch(addPhotosByAlbumId({ albumId: typedFile.id, newPhotosList: [photo] }))
-        //   }
-        // })
+          //   dispatch(addPhotosByAlbumId({ albumId: typedFile.id, newPhotosList: [photo] }))
+          // }
+        })
 
         const typedFile = successful[0] as UppyFile & {
           albumId: string
@@ -177,11 +181,12 @@ const CurrentAlbum: FC = () => {
     }
 
     uppy.on('files-added', filesAddedHandler)
-
+    uppy.on('file-removed', fileRemovedHandler)
     uppy.on('complete', completeHandler)
 
     return () => {
       uppy.off('files-added', filesAddedHandler)
+      uppy.off('file-removed', fileRemovedHandler)
       uppy.off('complete', completeHandler)
     }
   }, [])
@@ -196,24 +201,19 @@ const CurrentAlbum: FC = () => {
         })
       })
     }
-  }, [currentPeople])
+  }, [currentPeople, files])
 
   useEffect(() => {
-    if (!photos && album) {
+    if (!isLoadingPhotos && !photos && album) {
+      setIsLoadingPhotos(true)
       dispatch(getPhotosAsync({ albumId: album.id }))
     }
     if (!people) dispatch(getPeopleAsync())
   }, [photos, album, people])
 
-  useDidMountEffect(() => {
-    if (isUploading && status === APIStatus.FULFILLED) {
-      setFiles([])
-      setCurrentPeople([])
-      setIsUploading(false)
-    }
-
-    if (isUploading && status === APIStatus.REJECTED) {
-      setIsUploading(false)
+  useEffect(() => {
+    if (isLoadingPhotos && status !== APIStatus.PENDING) {
+      setIsLoadingPhotos(false)
     }
   }, [status])
 
@@ -224,7 +224,15 @@ const CurrentAlbum: FC = () => {
   }, [files, currentPeople])
 
   useEffect(() => {
-    if (visible && hasMorePhoto && status !== APIStatus.PENDING && photos && album) {
+    if (
+      !isLoadingPhotos &&
+      visible &&
+      hasMorePhoto &&
+      status !== APIStatus.PENDING &&
+      photos &&
+      album
+    ) {
+      setIsLoadingPhotos(true)
       dispatch(getMorePhotosAsync({ albumId: album.id, page }))
     }
   }, [visible, status, hasMorePhoto])
@@ -356,11 +364,12 @@ const CurrentAlbum: FC = () => {
         style={{
           textAlign: 'center',
           width: '100%',
+          overflow: 'hidden',
           opacity: hasMorePhoto && status === APIStatus.PENDING ? 1 : 0,
-          fontSize: hasMorePhoto && status === APIStatus.PENDING ? '28px' : '0px',
+          height: hasMorePhoto && status === APIStatus.PENDING ? '28px' : '0px',
         }}
       >
-        Loading...
+        <CircularProgress size={25} />
       </div>
     </motion.div>
   )

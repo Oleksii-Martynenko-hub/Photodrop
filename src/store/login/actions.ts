@@ -1,7 +1,7 @@
 import { createAsyncThunk } from '@reduxjs/toolkit'
 
 import { APIStatus, LoginData, TokensData } from 'api/MainApi'
-import { getExceptionPayload } from 'api/ErrorHandler'
+import { ErrorObject, getExceptionPayload } from 'api/ErrorHandler'
 
 import { ThunkExtra } from 'store'
 import { clearUserState } from 'store/user/reducers'
@@ -9,6 +9,31 @@ import { clearAlbumsState } from 'store/albums/reducers'
 import { clearPhotosState } from 'store/photos/reducers'
 import { clearLoginState, clearToken, setIsLoggedIn, setLoginStatus } from 'store/login/reducers'
 import Tokens from 'utils/local-storage/tokens'
+
+export const logoutIfTokenInvalid = createAsyncThunk<void, unknown, ThunkExtra>(
+  'login/logoutIfTokenInvalid',
+  async (errorData, { rejectWithValue, dispatch }) => {
+    try {
+      const ex = errorData as any
+      let msg = ''
+
+      if (ex && ex.response) {
+        if (ex.response.data && ex.response.data.errors) {
+          msg = ex.response.data.errors[0].msg
+        }
+        if (ex.response.errors) {
+          msg = ex.response.errors[0].msg
+        }
+      }
+
+      if (msg === 'Not authorized' || msg === 'Photographer with this id does not exist') {
+        dispatch(logoutAsync())
+      }
+    } catch (error) {
+      return rejectWithValue(getExceptionPayload(error))
+    }
+  },
+)
 
 export const restoreAuthAsync = createAsyncThunk<void, void, ThunkExtra>(
   'login/restoreAuthAsync',
@@ -27,6 +52,8 @@ export const restoreAuthAsync = createAsyncThunk<void, void, ThunkExtra>(
       dispatch(setLoginStatus(APIStatus.FULFILLED))
     } catch (error) {
       dispatch(setLoginStatus(APIStatus.REJECTED))
+
+      dispatch(logoutIfTokenInvalid(error))
       return rejectWithValue(getExceptionPayload(error))
     }
   },

@@ -95,13 +95,7 @@ export const photosSlice = createSlice({
     builder.addCase(getPhotosAsync.pending, pendingCase())
     builder.addCase(
       getPhotosAsync.rejected,
-      rejectedCase((_, action) => {
-        if (action.payload) {
-          action.payload.forEach((error) => {
-            toast.error(...errorToast(error.msg))
-          })
-        }
-      }),
+      rejectedCase((_, { payload }) => errorToast(payload)),
     )
     builder.addCase(getPhotosAsync.fulfilled, (state, { payload }) => {
       state.status = APIStatus.FULFILLED
@@ -125,13 +119,7 @@ export const photosSlice = createSlice({
     builder.addCase(getMorePhotosAsync.pending, pendingCase())
     builder.addCase(
       getMorePhotosAsync.rejected,
-      rejectedCase((_, action) => {
-        if (action.payload) {
-          action.payload.forEach((error) => {
-            toast.error(...errorToast(error.msg))
-          })
-        }
-      }),
+      rejectedCase((_, { payload }) => errorToast(payload)),
     )
     builder.addCase(getMorePhotosAsync.fulfilled, (state, { payload }) => {
       state.status = APIStatus.FULFILLED
@@ -156,13 +144,7 @@ export const photosSlice = createSlice({
     builder.addCase(getPeopleAsync.pending, pendingCase())
     builder.addCase(
       getPeopleAsync.rejected,
-      rejectedCase((_, action) => {
-        if (action.payload) {
-          action.payload.forEach((error) => {
-            toast.error(...errorToast(error.msg))
-          })
-        }
-      }),
+      rejectedCase((_, { payload }) => errorToast(payload)),
     )
     builder.addCase(getPeopleAsync.fulfilled, (state, action) => {
       state.status = APIStatus.FULFILLED
@@ -172,13 +154,7 @@ export const photosSlice = createSlice({
     builder.addCase(postUploadPhotosAsync.pending, pendingCase())
     builder.addCase(
       postUploadPhotosAsync.rejected,
-      rejectedCase((_, action) => {
-        if (action.payload) {
-          action.payload.forEach((error) => {
-            toast.error(...errorToast(error.msg))
-          })
-        }
-      }),
+      rejectedCase((_, { payload }) => errorToast(payload)),
     )
     builder.addCase(postUploadPhotosAsync.fulfilled, (state) => {
       state.status = APIStatus.FULFILLED

@@ -20,7 +20,7 @@ export const InternalError = [
   },
 ]
 
-export const getExceptionPayload = (exception: unknown): ErrorObject[] => {
+export const getExceptionPayload = (exception: any): ErrorObject[] => {
   if (typeof exception !== 'object' || !exception) {
     return InternalError
   }
@@ -47,6 +47,11 @@ export const getExceptionPayload = (exception: unknown): ErrorObject[] => {
   ) {
     return ex.response.data.errors
   }
+
+  if (exception.message && exception.response.statusText)
+    return [{ msg: exception.message + ': ' + exception.response.statusText }]
+
+  if (exception.message) return [{ msg: exception.message }]
 
   return InternalError
 }

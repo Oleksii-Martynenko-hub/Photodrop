@@ -2,6 +2,7 @@ import { createSlice } from '@reduxjs/toolkit'
 
 import { ErrorObject } from 'api/ErrorHandler'
 import { APIStatus } from 'api/MainApi'
+import { toast } from 'react-toastify'
 
 import { pendingCase, rejectedCase } from 'store'
 import { loginAsync } from 'store/login/actions'
@@ -20,18 +21,13 @@ const initialState: LoginState = {
   errors: [],
 }
 
-export const errorToast = (msg: string) =>
-  [
-    msg === 'Not authorized' ? 'Your login has expired, please login again' : msg,
-    {
-      position: 'top-center',
-      hideProgressBar: true,
-      closeOnClick: true,
-      draggable: true,
-      autoClose: 3000,
-      progress: undefined,
-    },
-  ] as const
+export const errorToast = (payload: ErrorObject[] | undefined) => {
+  if (payload) {
+    payload.forEach(({ msg }) => {
+      toast.error(msg === 'Not authorized' ? 'Your login has expired, please login again' : msg)
+    })
+  }
+}
 
 export const loginSlice = createSlice({
   name: 'login',
@@ -59,7 +55,10 @@ export const loginSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder.addCase(loginAsync.pending, pendingCase())
-    builder.addCase(loginAsync.rejected, rejectedCase())
+    builder.addCase(
+      loginAsync.rejected,
+      rejectedCase((_, { payload }) => errorToast(payload)),
+    )
     builder.addCase(loginAsync.fulfilled, (state, action) => {
       const tokens = Tokens.getInstance()
 

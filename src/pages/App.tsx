@@ -54,6 +54,7 @@ const App = () => {
               draggable
               autoClose={3000}
               progressStyle={undefined}
+              limit={1}
             />
 
             <AppBar />
