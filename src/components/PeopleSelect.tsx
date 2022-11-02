@@ -34,7 +34,7 @@ const PeopleSelect: FC<Props> = ({ currentPeople, setCurrentPeople }) => {
     if (people?.length)
       setPeopleOptions(
         uniqBy<PeopleOptionType>(
-          [...additionalPeople, ...people.map(({ name, phone }) => ({ name, phone }))],
+          people.map(({ name, phone }) => ({ name, phone })),
           'phone',
         ),
       )
@@ -180,46 +180,3 @@ const SubLabel = styled.span<{ isValid?: boolean }>`
   margin-top: 4px;
   display: block;
 `
-// temporarily added additional people with names
-const additionalPeople: readonly PeopleOptionType[] = [
-  {
-    name: 'Eliza Wall',
-    phone: '380509125062',
-  },
-  {
-    name: null,
-    phone: '380508784862',
-  },
-  {
-    name: 'Doreen Hudson',
-    phone: '380979954793',
-  },
-  {
-    name: 'Shirley Rose',
-    phone: '380688674423',
-  },
-  {
-    name: 'Fitzpatrick Strong',
-    phone: '380678274212',
-  },
-  {
-    name: null,
-    phone: '380979955582',
-  },
-  {
-    name: 'Mcpherson Ferrell',
-    phone: '380688184872',
-  },
-  {
-    name: 'Doreen Hudson',
-    phone: '380688375343',
-  },
-  {
-    name: 'Ayers Ramsey',
-    phone: '380999495953',
-  },
-  {
-    name: 'Marquita Walker',
-    phone: '380988434263',
-  },
-]

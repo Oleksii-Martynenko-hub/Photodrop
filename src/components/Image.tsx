@@ -16,6 +16,9 @@ interface Props extends ImgHTMLAttributes<HTMLImageElement> {
   iconSize?: number | string
   sx?: SxProps<Theme> | undefined
   clickable?: boolean
+  square?: boolean
+  contain?: boolean
+  fullScreen?: boolean
   onLoad?: () => void
 }
 
@@ -27,6 +30,9 @@ export const Image: FC<Props> = ({
   iconSize,
   sx,
   clickable,
+  square = false,
+  contain = false,
+  fullScreen = false,
   onLoad,
   ...props
 }: Props) => {
@@ -47,8 +53,9 @@ export const Image: FC<Props> = ({
   }
 
   return (
-    <Box sx={{ ...sx, borderRadius: '4px' }}>
+    <Box sx={{ ...sx, borderRadius: square ? '0' : '4px', width: '100%', height: '100%' }}>
       <motion.div
+        style={fullScreen ? { width: '100%', height: '100%' } : {}}
         initial={initAnimation}
         animate={isOriginalLoaded ? 'loaded' : 'unload'}
         exit={initAnimation}
@@ -68,13 +75,24 @@ export const Image: FC<Props> = ({
           isHide={!isOriginalLoaded}
           width={width}
           height={height}
+          square={square}
+          contain={contain}
           {...props}
         />
-        {clickable && <Overlay isHide={!isOriginalLoaded} width={width} height={height} />}
+        {clickable && (
+          <Overlay square={square} isHide={!isOriginalLoaded} width={width} height={height} />
+        )}
       </motion.div>
 
       {defaultImage ? (
-        <ImageStyled src={defaultImage} isHide={isOriginalLoaded} width={width} height={height} />
+        <ImageStyled
+          square={square}
+          contain={contain}
+          src={defaultImage}
+          isHide={isOriginalLoaded}
+          width={width}
+          height={height}
+        />
       ) : (
         <Box
           sx={{
@@ -137,6 +155,8 @@ const ImageStyled = styled.img<{
   width?: number | string
   height?: number | string
   isHide: boolean
+  square: boolean
+  contain: boolean
 }>`
   display: ${({ isHide }) => (isHide ? 'none' : 'block')};
   width: ${({ width }) => {
@@ -145,14 +165,15 @@ const ImageStyled = styled.img<{
   height: ${({ height }) => {
     return height !== undefined ? (typeof height === 'string' ? height : `${height}px`) : 'auto'
   }};
-  object-fit: cover;
-  border-radius: 4px;
+  object-fit: ${({ contain }) => (contain ? 'contain' : 'cover')};
+  border-radius: ${({ square }) => (square ? '0' : '4px')};
 `
 
 const Overlay = styled.div<{
   width?: number | string
   height?: number | string
   isHide: boolean
+  square: boolean
 }>`
   display: ${({ isHide }) => (isHide ? 'none' : 'block')};
   width: ${({ width }) => {
@@ -161,7 +182,7 @@ const Overlay = styled.div<{
   height: ${({ height }) => {
     return height !== undefined ? (typeof height === 'string' ? height : `${height}px`) : 'auto'
   }};
-  border-radius: 4px;
+  border-radius: ${({ square }) => (square ? '0' : '4px')};
   cursor: pointer;
   background-color: rgba(0, 0, 0, 0);
   position: absolute;

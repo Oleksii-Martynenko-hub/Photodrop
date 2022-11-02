@@ -9,6 +9,7 @@ import {
   CircularProgress,
   Dialog,
   Grid,
+  IconButton,
   ImageList,
   ImageListItem,
   Skeleton,
@@ -16,6 +17,7 @@ import {
   useMediaQuery,
 } from '@mui/material'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
+import CloseIcon from '@mui/icons-material/Close'
 import { motion } from 'framer-motion'
 import styled from 'styled-components'
 import moment from 'moment'
@@ -308,7 +310,7 @@ const CurrentAlbum: FC = () => {
 
         <AccordionDetails>
           <UppyDashboardWrapper>
-            <Dashboard uppy={uppy} hideUploadButton width={'100%'} height={'100%'} />
+            <Dashboard uppy={uppy} hideUploadButton />
           </UppyDashboardWrapper>
 
           <Box mb='15px'>
@@ -336,9 +338,35 @@ const CurrentAlbum: FC = () => {
         scroll='body'
         open={isDialogOpen}
         onClose={onClosePhoto}
-        PaperProps={{ sx: { background: 'transparent', boxShadow: 'none' } }}
+        sx={{ background: 'rgba(0, 0, 0, 0.5)' }}
+        PaperProps={{
+          sx: {
+            background: 'transparent',
+            boxShadow: 'none',
+            height: 'calc(100% - 64px)',
+            width: 'calc(100% - 64px)',
+            maxWidth: '1440px',
+            borderRadius: 0,
+          },
+        }}
       >
-        <Image {...currentPhoto} />
+        <IconButton
+          onClick={onClosePhoto}
+          sx={{
+            position: 'absolute',
+            top: '0',
+            left: '15px',
+            color: '#fff',
+            backgroundColor: 'rgba(0,0,0,0.06)',
+            '&:hover': {
+              backgroundColor: 'rgba(0,0,0,0.2)',
+            },
+          }}
+        >
+          <CloseIcon color='inherit' />
+        </IconButton>
+
+        <Image width='100%' height='100%' contain square fullScreen {...currentPhoto} />
       </Dialog>
 
       {photos && (
@@ -382,7 +410,6 @@ const Name = styled(Typography)`
   line-height: 1.1;
   font-weight: 600;
   font-size: 20px;
-  /* margin-bottom: 15px; */
   margin-right: 24px;
 `
 
@@ -390,7 +417,6 @@ const Location = styled(Typography)`
   color: #141414;
   line-height: 1.2;
   font-size: 16px;
-  /* margin-bottom: 15px; */
 `
 
 const Date = styled(Typography)`
@@ -406,6 +432,12 @@ const UppyDashboardWrapper = styled.div`
 
   & .uppy-Dashboard-inner {
     border-radius: 8px;
+    width: 100% !important;
+    height: 200px !important;
+
+    @media (min-width: 1024px) {
+      height: 400px !important;
+    }
   }
 
   & .uppy-Dashboard-AddFiles {
