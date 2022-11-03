@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import styled from 'styled-components'
+import PhotoCameraRoundedIcon from '@mui/icons-material/PhotoCameraRounded'
 
 import { useMediaQuery } from './hooks/useMediaQuery'
 
@@ -10,7 +11,8 @@ export const Logo = () => {
 
   return (
     <LinkStyled to={ERoutes.ROOT}>
-      <LogoImage src={`/logo-${logoSize}.png`} alt='logo' />
+      <PhotoCameraRoundedIcon sx={{ fontSize: '25px', color: '#3300cc', mr: '5px' }} />
+      <LogoImage src={`/logo-${logoSize}.svg`} alt='logo' />
     </LinkStyled>
   )
 }
