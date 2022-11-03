@@ -19,7 +19,7 @@ const AlbumItem: FC<Props> = ({ album, index }) => {
 
   const isMediumScreenSize = useMediaQuery.min(900)
 
-  const [formattedDate] = useState(moment(date).format('DD.MM.YYYY HH:mm'))
+  const [formattedDate] = useState(moment(date).format('DD.MM.YYYY'))
   const [delay] = useState(
     isMediumScreenSize
       ? [...Array(index + 1)].reduce((acc, _, n) => ((n + 1) % 2 == 0 ? acc : acc + 0.02), 0)
