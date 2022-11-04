@@ -63,7 +63,7 @@ const mockAlbums = [
     date: '2018-12-09T05:05:31z',
   },
   {
-    name: 'Comic-Con International',
+    name: 'Comic Con International',
     location: 'San Diego, California',
     date: '2017-02-08T06:20:34z',
   },
@@ -93,7 +93,7 @@ const mockAlbums = [
     date: '2018-04-19T03:56:01z',
   },
   {
-    name: 'New Year’s Eve in Times Square',
+    name: 'New Years Eve in Times Square',
     location: 'Times Square, New York',
     date: '2020-01-19T10:39:31z',
   },
@@ -103,7 +103,7 @@ const mockAlbums = [
     date: '2022-01-10T06:30:22z',
   },
   {
-    name: 'Jane Smith, Botanical Garden',
+    name: 'Jane Smith Botanical Garden',
     location: 'Brooklyn Botanical Garden',
     date: '2022-05-12T06:30:22z',
   },
@@ -260,7 +260,7 @@ const NewAlbum: FC = () => {
               Save
             </LoadingButton>
 
-            {(login === 'bkrevsun' || login === 'oleksii') && ( // TODO: temporary
+            {login === 'oleksii' && ( // TODO: temporary
               <LoadingButton
                 loading={status === APIStatus.PENDING}
                 loadingIndicator={
