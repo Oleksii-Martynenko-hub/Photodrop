@@ -50,11 +50,11 @@ export const albumsSlice = createSlice({
       toast.success(`Album "${action.payload.name}" successfully created`, {
         position: 'top-center',
         autoClose: 1000,
-        hideProgressBar: true,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
+        // hideProgressBar: true,
+        // closeOnClick: true,
+        // pauseOnHover: true,
+        // draggable: true,
+        // progress: undefined,
       })
     })
   },

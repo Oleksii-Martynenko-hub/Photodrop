@@ -21,23 +21,23 @@ export const getAlbumsAsync = createAsyncThunk<AlbumData[], void, ThunkExtra>(
       // eslint-disable-next-line no-prototype-builtins
       if (response.hasOwnProperty('errors')) throw { response }
 
-      const albumIds = response.map(({ id }) => id)
+      // const albumIds = response.map(({ id }) => id)
 
-      const icons = await protectedApi.getAlbumIcons(albumIds)
+      // const icons = await protectedApi.getAlbumIcons(albumIds)
 
-      const albumsWithIcons = albumIds
-        .map((id) => {
-          const album = response.find((album) => id === album.id)
+      // const albumsWithIcons = albumIds
+      //   .map((id) => {
+      //     const album = response.find((album) => id === album.id)
 
-          if (album) {
-            const icon = icons[album.id.toString()]
+      //     if (album) {
+      //       const icon = icons[album.id.toString()]
 
-            return { ...album, icon }
-          }
-        })
-        .filter((album) => album && album.icon !== 'Album does not exist')
+      //       return { ...album, icon }
+      //     }
+      //   })
+      //   .filter((album) => album && album.icon !== 'Album does not exist')
 
-      return albumsWithIcons as AlbumData[]
+      return response.albumsInfo
     } catch (error) {
       dispatch(logoutIfTokenInvalid(error))
       return rejectWithValue(getExceptionPayload(error))
@@ -62,7 +62,15 @@ export const postCreateAlbumAsync = createAsyncThunk<
         ...albumData,
       })
 
-      return response
+      const { photographerId, ...album } = response
+
+      const formattedAlbum = {
+        ...album,
+        icon: null,
+        thumbnails: [],
+      }
+
+      return formattedAlbum
     } catch (error) {
       dispatch(logoutIfTokenInvalid(error))
       return rejectWithValue(getExceptionPayload(error))

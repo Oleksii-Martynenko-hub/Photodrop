@@ -46,6 +46,7 @@ import { Image } from 'components/Image'
 import PeopleSelect, { PeopleOptionType } from 'components/PeopleSelect'
 import { LoadingButton } from '@mui/lab'
 import { useDidMountEffect } from 'components/hooks/useDidMountEffect'
+import { selectUserId } from 'store/user/selectors'
 // import { convertFileToDataURL } from 'utils/convert-file-to-data-url'
 // import { addPhotosByAlbumId } from 'store/photos/reducers'
 
@@ -59,6 +60,7 @@ const CurrentAlbum: FC = () => {
   const lg = useMediaQuery('(min-width:1200px)')
 
   const album = useSelector(selectAlbumById(id))
+  const photographerId = useSelector(selectUserId)
   const people = useSelector(selectPeople)
   const status = useSelector(selectStatus)
   const statusAlbums = useSelector(selectStatusAlbums)
@@ -199,7 +201,7 @@ const CurrentAlbum: FC = () => {
         uppy.setFileState(file.id, {
           people: currentPeople.map((p) => p.phone),
           albumId: album?.id || '',
-          photographerId: album?.photographerId || '',
+          photographerId: photographerId || '',
         })
       })
     }
