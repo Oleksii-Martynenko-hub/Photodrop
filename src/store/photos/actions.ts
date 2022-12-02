@@ -8,102 +8,102 @@ import { Photos } from './reducers'
 import { DropZoneFiles } from 'components/UploadDropZone'
 import { logoutIfTokenInvalid } from 'store/login/actions'
 
-export const getPhotosAsync = createAsyncThunk<Photos, { albumId: string }, ThunkExtra>(
-  'photos/getPhotosAsync',
-  async ({ albumId }, { rejectWithValue, extra: { protectedApi }, getState, dispatch }) => {
-    try {
-      const { id } = getState().userReducer
-      const { limit } = getState().photosReducer
+// export const getPhotosAsync = createAsyncThunk<Photos, { albumId: string }, ThunkExtra>(
+//   'photos/getPhotosAsync',
+//   async ({ albumId }, { rejectWithValue, extra: { protectedApi }, getState, dispatch }) => {
+//     try {
+//       const { id } = getState().userReducer
+//       const { limit } = getState().photosReducer
 
-      if (!id) throw new Error('Error getPhotosAsync: photographerId is missing')
+//       if (!id) throw new Error('Error getPhotosAsync: photographerId is missing')
 
-      const response = await protectedApi.getPhotos({
-        photographerId: id,
-        albumId,
-        limit,
-      })
+//       const response = await protectedApi.getPhotos({
+//         photographerId: id,
+//         albumId,
+//         limit,
+//       })
 
-      // eslint-disable-next-line no-prototype-builtins
-      if (response.hasOwnProperty('errors')) throw { response }
+//       // eslint-disable-next-line no-prototype-builtins
+//       if (response.hasOwnProperty('errors')) throw { response }
 
-      const photoKeys = response.rows.map((photo) => ({ photoKey: photo.name }))
+//       const photoKeys = response.rows.map((photo) => ({ photoKey: photo.name }))
 
-      const photoLinks = await protectedApi.postPresignedGetPhotos(photoKeys)
+//       const photoLinks = await protectedApi.postPresignedGetPhotos(photoKeys)
 
-      const formattedPhotos = response.rows.map(({ name, ...photo }) => {
-        const photoLink = photoLinks.find((link) => link.includes(name)) || ''
+//       const formattedPhotos = response.rows.map(({ name, ...photo }) => {
+//         const photoLink = photoLinks.find((link) => link.includes(name)) || ''
 
-        return {
-          name,
-          photoLink,
-          ...photo,
-        }
-      })
+//         return {
+//           name,
+//           photoLink,
+//           ...photo,
+//         }
+//       })
 
-      return {
-        albumId,
-        count: response.count,
-        hasMore: response.count > formattedPhotos.length,
-        page: 1,
-        photosList: formattedPhotos,
-      }
-    } catch (error) {
-      dispatch(logoutIfTokenInvalid(error))
-      return rejectWithValue(getExceptionPayload(error))
-    }
-  },
-)
+//       return {
+//         albumId,
+//         count: response.count,
+//         hasMore: response.count > formattedPhotos.length,
+//         page: 1,
+//         photosList: formattedPhotos,
+//       }
+//     } catch (error) {
+//       dispatch(logoutIfTokenInvalid(error))
+//       return rejectWithValue(getExceptionPayload(error))
+//     }
+//   },
+// )
 
-export const getMorePhotosAsync = createAsyncThunk<
-  Photos,
-  Omit<GetPhotosBody, 'photographerId'>,
-  ThunkExtra
->(
-  'photos/getMorePhotosAsync',
-  async (
-    { albumId, page = 1 },
-    { rejectWithValue, extra: { protectedApi }, getState, dispatch },
-  ) => {
-    try {
-      const { id } = getState().userReducer
-      const { limit } = getState().photosReducer
+// export const getMorePhotosAsync = createAsyncThunk<
+//   Photos,
+//   Omit<GetPhotosBody, 'photographerId'>,
+//   ThunkExtra
+// >(
+//   'photos/getMorePhotosAsync',
+//   async (
+//     { albumId, page = 1 },
+//     { rejectWithValue, extra: { protectedApi }, getState, dispatch },
+//   ) => {
+//     try {
+//       const { id } = getState().userReducer
+//       const { limit } = getState().photosReducer
 
-      if (!id) throw new Error('Error getPhotosAsync: photographerId is missing')
+//       if (!id) throw new Error('Error getPhotosAsync: photographerId is missing')
 
-      const response = await protectedApi.getPhotos({
-        photographerId: id,
-        albumId,
-        limit,
-        page: page + 1,
-      })
+//       const response = await protectedApi.getPhotos({
+//         photographerId: id,
+//         albumId,
+//         limit,
+//         page: page + 1,
+//       })
 
-      const photoKeys = response.rows.map((photo) => ({ photoKey: photo.name }))
+//       const photoKeys = response.rows.map((photo) => ({ photoKey: photo.name }))
 
-      const photoLinks = await protectedApi.postPresignedGetPhotos(photoKeys)
+//       const photoLinks = await protectedApi.postPresignedGetPhotos(photoKeys)
 
-      const formattedPhotos = response.rows.map(({ name, ...photo }) => {
-        const photoLink = photoLinks.find((link) => link.includes(name)) || ''
+//       const formattedPhotos = response.rows.map(({ name, ...photo }) => {
+//         const photoLink = photoLinks.find((link) => link.includes(name)) || ''
 
-        return {
-          name,
-          photoLink,
-          ...photo,
-        }
-      })
+//         return {
+//           name,
+//           photoLink,
+//           ...photo,
+//         }
+//       })
 
-      return {
-        albumId,
-        count: response.count,
-        hasMore: response.count > page * limit + formattedPhotos.length,
-        page: page + 1,
-        photosList: formattedPhotos,
-      }
-    } catch (error) {
-      dispatch(logoutIfTokenInvalid(error))
-      return rejectWithValue(getExceptionPayload(error))
-    }
-  },
-)
+//       return {
+//         albumId,
+//         count: response.count,
+//         hasMore: response.count > page * limit + formattedPhotos.length,
+//         page: page + 1,
+//         photosList: formattedPhotos,
+//       }
+//     } catch (error) {
+//       dispatch(logoutIfTokenInvalid(error))
+//       return rejectWithValue(getExceptionPayload(error))
+//     }
+//   },
+// )
 
 export const getPeopleAsync = createAsyncThunk<People[], void, ThunkExtra>(
   'photos/getPeopleAsync',

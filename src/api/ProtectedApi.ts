@@ -69,8 +69,8 @@ export interface GetPhotosResponse {
 export interface GetPhotosBody {
   photographerId: string
   albumId: string
-  page?: number
-  limit?: number
+  // page?: number
+  // limit?: number
 }
 
 export interface People {
@@ -116,14 +116,14 @@ class ProtectedApi extends HttpClientProtected {
     })
   }
 
-  public getAlbumIcons = (albumIds: string[]) => {
-    return this.instance.post<{ [k: string]: string | null }>('/get-albums-thumbnail-icons', {
-      albumIds,
-    })
-  }
+  // public getAlbumIcons = (albumIds: string[]) => {
+  //   return this.instance.post<{ [k: string]: string | null }>('/get-albums-thumbnail-icons', {
+  //     albumIds,
+  //   })
+  // }
 
   public getPhotos = (params: GetPhotosBody) => {
-    return this.instance.get<GetPhotosResponse>('/get-photos-from-db', { params })
+    return this.instance.get<{ [key: string]: string }>('/get-photos-from-db', { params })
   }
 
   public postPresignedPostPhotos = (photosToUpload: PresignedPhotosPostBody) =>

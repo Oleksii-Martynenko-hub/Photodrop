@@ -6,7 +6,7 @@ import { APIStatus } from 'api/MainApi'
 import { AlbumData } from 'api/ProtectedApi'
 
 import { pendingCase, rejectedCase } from 'store'
-import { getAlbumsAsync, postCreateAlbumAsync } from 'store/albums/actions'
+import { getAlbumsAsync, getPhotosByAlbumIdAsync, postCreateAlbumAsync } from 'store/albums/actions'
 import { errorToast } from 'store/login/reducers'
 
 export interface AlbumsState {
@@ -36,6 +36,16 @@ export const albumsSlice = createSlice({
     builder.addCase(getAlbumsAsync.fulfilled, (state, action) => {
       state.status = APIStatus.FULFILLED
       state.albums = action.payload.reverse()
+    })
+
+    builder.addCase(getPhotosByAlbumIdAsync.pending, pendingCase())
+    builder.addCase(
+      getPhotosByAlbumIdAsync.rejected,
+      rejectedCase((_, { payload }) => errorToast(payload)),
+    )
+    builder.addCase(getPhotosByAlbumIdAsync.fulfilled, (state, { payload }) => {
+      state.status = APIStatus.FULFILLED
+      state.albums = state.albums.map((a) => (a.id === payload.id ? payload : a))
     })
 
     builder.addCase(postCreateAlbumAsync.pending, pendingCase())

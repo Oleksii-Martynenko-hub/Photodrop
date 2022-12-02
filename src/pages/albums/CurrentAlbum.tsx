@@ -31,22 +31,27 @@ import { toast } from 'react-toastify'
 import { APIStatus } from 'api/MainApi'
 import ProtectedApi, { PhotosArray } from 'api/ProtectedApi'
 
-import { getMorePhotosAsync, getPeopleAsync, getPhotosAsync } from 'store/photos/actions'
 import {
-  selectHasMorePhotosByAlbumId,
+  // getMorePhotosAsync,
+  getPeopleAsync,
+  // getPhotosAsync
+} from 'store/photos/actions'
+import {
+  // selectHasMorePhotosByAlbumId,
   selectPeople,
-  selectPhotosByAlbumId,
-  selectPhotosPageByAlbumId,
+  // selectPhotosByAlbumId,
+  // selectPhotosPageByAlbumId,
   selectStatus,
 } from 'store/photos/selectors'
 import { selectStatus as selectStatusAlbums, selectAlbumById } from 'store/albums/selectors'
 
-import useObserver from 'components/hooks/useObserver'
+// import useObserver from 'components/hooks/useObserver'
 import { Image } from 'components/Image'
 import PeopleSelect, { PeopleOptionType } from 'components/PeopleSelect'
 import { LoadingButton } from '@mui/lab'
 import { useDidMountEffect } from 'components/hooks/useDidMountEffect'
 import { selectUserId } from 'store/user/selectors'
+import { getPhotosByAlbumIdAsync } from 'store/albums/actions'
 // import { convertFileToDataURL } from 'utils/convert-file-to-data-url'
 // import { addPhotosByAlbumId } from 'store/photos/reducers'
 
@@ -64,9 +69,9 @@ const CurrentAlbum: FC = () => {
   const people = useSelector(selectPeople)
   const status = useSelector(selectStatus)
   const statusAlbums = useSelector(selectStatusAlbums)
-  const photos = useSelector(selectPhotosByAlbumId(id))
-  const page = useSelector(selectPhotosPageByAlbumId(id))
-  const hasMorePhoto = useSelector(selectHasMorePhotosByAlbumId(id))
+  // const photos = useSelector(selectPhotosByAlbumId(id))
+  // const page = useSelector(selectPhotosPageByAlbumId(id))
+  // const hasMorePhoto = useSelector(selectHasMorePhotosByAlbumId(id))
 
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
@@ -80,8 +85,8 @@ const CurrentAlbum: FC = () => {
   )
   // const [fileKeys, setFileKeys] = useState<{ id: string; key: string }[]>([])
 
-  const observerRef = useRef<HTMLDivElement>(null)
-  const visible = useObserver(observerRef, '100px')
+  // const observerRef = useRef<HTMLDivElement>(null)
+  // const visible = useObserver(observerRef, '100px')
 
   const uppy = useUppy(() => {
     return new Uppy({
@@ -173,12 +178,12 @@ const CurrentAlbum: FC = () => {
           // }
         })
 
-        const typedFile = successful[0] as UppyFile & {
-          albumId: string
-          photographerId: string
-        }
+        // const typedFile = successful[0] as UppyFile & {
+        //   albumId: string
+        //   photographerId: string
+        // }
 
-        dispatch(getPhotosAsync({ albumId: typedFile.albumId }))
+        if (album) dispatch(getPhotosByAlbumIdAsync(album))
         setFiles([])
         // setFileKeys([])
       }, 3000)
@@ -208,12 +213,12 @@ const CurrentAlbum: FC = () => {
   }, [currentPeople, files])
 
   useEffect(() => {
-    if (!isLoadingPhotos && !photos && album) {
+    if (!isLoadingPhotos && album) {
       setIsLoadingPhotos(true)
-      dispatch(getPhotosAsync({ albumId: album.id }))
+      dispatch(getPhotosByAlbumIdAsync(album))
     }
     if (!people) dispatch(getPeopleAsync())
-  }, [photos, album, people])
+  }, [album, people])
 
   useEffect(() => {
     if (isLoadingPhotos && status !== APIStatus.PENDING) {
@@ -227,19 +232,19 @@ const CurrentAlbum: FC = () => {
     setIsPhoneValid(isFieldsFull && isPhonesValid)
   }, [files, currentPeople])
 
-  useEffect(() => {
-    if (
-      !isLoadingPhotos &&
-      visible &&
-      hasMorePhoto &&
-      status !== APIStatus.PENDING &&
-      photos &&
-      album
-    ) {
-      setIsLoadingPhotos(true)
-      dispatch(getMorePhotosAsync({ albumId: album.id, page }))
-    }
-  }, [visible, status, hasMorePhoto])
+  // useEffect(() => {
+  //   if (
+  //     !isLoadingPhotos &&
+  //     visible &&
+  //     hasMorePhoto &&
+  //     status !== APIStatus.PENDING &&
+  //     photos &&
+  //     album
+  //   ) {
+  //     setIsLoadingPhotos(true)
+  //     dispatch(getMorePhotosAsync({ albumId: album.id, page }))
+  //   }
+  // }, [visible, status, hasMorePhoto])
 
   const onClickUploadPhotos = () => {
     if (files.length && album) {
@@ -371,23 +376,23 @@ const CurrentAlbum: FC = () => {
         <Image width='100%' height='100%' contain square fullScreen {...currentPhoto} />
       </Dialog>
 
-      {photos && (
+      {album && (
         <ImageList cols={lg ? 5 : md ? 4 : sm ? 3 : 2} gap={lg ? 12 : md ? 10 : sm ? 8 : 6}>
-          {photos.map(({ id, name, photoLink }) => (
-            <ImageListItem key={id} onClick={onClickPhoto(photoLink, name.split('_')[1])}>
+          {album.thumbnails.map(({ url, originalUrl, originalKey }) => (
+            <ImageListItem key={originalKey} onClick={onClickPhoto(originalUrl, originalKey)}>
               <Image
                 onClick={onClosePhoto}
                 height={200}
                 iconSize={36}
-                src={photoLink}
-                alt={name.split('_')[1]}
+                src={url}
+                alt={originalKey}
                 clickable
               />
             </ImageListItem>
           ))}
         </ImageList>
       )}
-
+      {/* 
       <div
         className='observer-ref-upload-more-photo'
         ref={observerRef}
@@ -400,7 +405,7 @@ const CurrentAlbum: FC = () => {
         }}
       >
         <CircularProgress size={25} />
-      </div>
+      </div> */}
     </motion.div>
   )
 }

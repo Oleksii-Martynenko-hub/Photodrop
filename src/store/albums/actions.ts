@@ -45,6 +45,34 @@ export const getAlbumsAsync = createAsyncThunk<AlbumData[], void, ThunkExtra>(
   },
 )
 
+export const getPhotosByAlbumIdAsync = createAsyncThunk<AlbumData, AlbumData, ThunkExtra>(
+  'albums/getOriginalPhotosAsync',
+  async (album, { rejectWithValue, extra: { protectedApi }, getState, dispatch }) => {
+    try {
+      await dispatch(setUserData())
+      const { id } = getState().userReducer
+
+      if (!id) throw new Error('Error getAlbumsAsync: photographerId is missing')
+
+      const response = await protectedApi.getPhotos({ photographerId: id, albumId: album.id })
+
+      // eslint-disable-next-line no-prototype-builtins
+      if (response.hasOwnProperty('errors')) throw { response }
+
+      const updatedThumbnails = album.thumbnails.map(({ url, originalKey }) => ({
+        url,
+        originalKey,
+        originalUrl: response[originalKey],
+      }))
+
+      return { ...album, thumbnails: updatedThumbnails }
+    } catch (error) {
+      dispatch(logoutIfTokenInvalid(error))
+      return rejectWithValue(getExceptionPayload(error))
+    }
+  },
+)
+
 export const postCreateAlbumAsync = createAsyncThunk<
   AlbumData,
   Omit<CreateAlbumData, 'photographerId'>,

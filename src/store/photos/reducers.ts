@@ -7,9 +7,9 @@ import { People, PhotosData } from 'api/ProtectedApi'
 
 import { pendingCase, rejectedCase } from 'store'
 import {
-  getMorePhotosAsync,
+  // getMorePhotosAsync,
   getPeopleAsync,
-  getPhotosAsync,
+  // getPhotosAsync,
   postUploadPhotosAsync,
 } from 'store/photos/actions'
 import { errorToast } from 'store/login/reducers'
@@ -92,54 +92,54 @@ export const photosSlice = createSlice({
   },
 
   extraReducers: (builder) => {
-    builder.addCase(getPhotosAsync.pending, pendingCase())
-    builder.addCase(
-      getPhotosAsync.rejected,
-      rejectedCase((_, { payload }) => errorToast(payload)),
-    )
-    builder.addCase(getPhotosAsync.fulfilled, (state, { payload }) => {
-      state.status = APIStatus.FULFILLED
+    // builder.addCase(getPhotosAsync.pending, pendingCase())
+    // builder.addCase(
+    //   getPhotosAsync.rejected,
+    //   rejectedCase((_, { payload }) => errorToast(payload)),
+    // )
+    // builder.addCase(getPhotosAsync.fulfilled, (state, { payload }) => {
+    //   state.status = APIStatus.FULFILLED
 
-      const { albumId, photosList, ...other } = payload
+    //   const { albumId, photosList, ...other } = payload
 
-      const photos = state.photos.find((p) => p.albumId === albumId)
+    //   const photos = state.photos.find((p) => p.albumId === albumId)
 
-      if (photos) {
-        Object.assign(photos, { photosList, ...other })
-        return
-      }
+    //   if (photos) {
+    //     Object.assign(photos, { photosList, ...other })
+    //     return
+    //   }
 
-      state.photos.push({
-        albumId,
-        ...other,
-        photosList,
-      })
-    })
+    //   state.photos.push({
+    //     albumId,
+    //     ...other,
+    //     photosList,
+    //   })
+    // })
 
-    builder.addCase(getMorePhotosAsync.pending, pendingCase())
-    builder.addCase(
-      getMorePhotosAsync.rejected,
-      rejectedCase((_, { payload }) => errorToast(payload)),
-    )
-    builder.addCase(getMorePhotosAsync.fulfilled, (state, { payload }) => {
-      state.status = APIStatus.FULFILLED
+    // builder.addCase(getMorePhotosAsync.pending, pendingCase())
+    // builder.addCase(
+    //   getMorePhotosAsync.rejected,
+    //   rejectedCase((_, { payload }) => errorToast(payload)),
+    // )
+    // builder.addCase(getMorePhotosAsync.fulfilled, (state, { payload }) => {
+    //   state.status = APIStatus.FULFILLED
 
-      const { albumId, photosList, ...other } = payload
+    //   const { albumId, photosList, ...other } = payload
 
-      const photos = state.photos.find((p) => p.albumId === albumId)
+    //   const photos = state.photos.find((p) => p.albumId === albumId)
 
-      if (photos) {
-        const updatedPhotoList = uniqBy<PhotosList>(
-          [...(photos.photosList || []), ...(photosList || [])],
-          'id',
-        )
+    //   if (photos) {
+    //     const updatedPhotoList = uniqBy<PhotosList>(
+    //       [...(photos.photosList || []), ...(photosList || [])],
+    //       'id',
+    //     )
 
-        Object.assign(photos, {
-          photosList: updatedPhotoList,
-          ...other,
-        })
-      }
-    })
+    //     Object.assign(photos, {
+    //       photosList: updatedPhotoList,
+    //       ...other,
+    //     })
+    //   }
+    // })
 
     builder.addCase(getPeopleAsync.pending, pendingCase())
     builder.addCase(
