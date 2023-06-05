@@ -4,22 +4,44 @@ import HttpClientProtected from 'api/HttpClientProtected'
 export const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080/api'
 
 export type AlbumData = {
-  id: number
+  id: string
   name: string
   location: string
   date: string
-  photographerId: number
+  icon: string | null
+  thumbnails: ThumbnailData[]
 }
 
-export interface CreateAlbumData extends Omit<AlbumData, 'id'> {}
+export type ThumbnailData = {
+  url: string
+  originalUrl: string
+  originalKey: string
+}
 
+export interface CreateAlbumData {
+  photographerId: string
+  name: string
+  location: string
+  date: string
+}
+
+export interface CreateAlbumResponse extends CreateAlbumData {
+  id: string
+}
+
+export interface GetAlbumsResponse {
+  photographerId: string
+  albumsInfo: AlbumData[]
+}
+
+export type PhotosArray = [
+  { photographerId: string },
+  { albumId: string },
+  { photoName: string },
+  { 'Content-Type': string },
+]
 export interface PresignedPhotosPostBody {
-  photosArray: [
-    { photographerId: number },
-    { albumId: number },
-    { photoName: string },
-    { 'Content-Type': string },
-  ][]
+  photosArray: PhotosArray[]
   people: string[]
 }
 
@@ -27,6 +49,7 @@ export interface PresignedPhotosPostResponse {
   url: string
   fields: {
     key: string
+    originalPhotoKey: string
     'Content-Type': string
     'x-amz-meta-people': string
     bucket: string
@@ -43,9 +66,26 @@ export interface GetPhotosResponse {
   rows: PhotosData[]
 }
 
-export interface PhotosData extends Omit<AlbumData, 'date' | 'location'> {
+export interface GetPhotosBody {
+  photographerId: string
+  albumId: string
+  // page?: number
+  // limit?: number
+}
+
+export interface People {
+  id: string
+  name: string | null
+  phone: string
+  email: string | null
+  textMessagesNotification: boolean
+  emailNotification: boolean
+  unsubscribe: boolean
+}
+
+export interface PhotosData extends Omit<AlbumData, 'date' | 'location' | 'icon'> {
   photoUrl: string
-  albumId: number
+  albumId: string
 }
 
 class ProtectedApi extends HttpClientProtected {
@@ -63,27 +103,36 @@ class ProtectedApi extends HttpClientProtected {
     return this.classInstance
   }
 
-  public postCreateAlbum = (newAlbum: CreateAlbumData) =>
-    this.instance.post<AlbumData>('/create-album', newAlbum)
-
-  // error messages
-  // 1 - 'The album with this name already exist'
-
-  public getAlbums = (photographerId: number) => {
-    return this.instance.get<AlbumData[]>('/get-albums-from-db', { params: { photographerId } })
+  public getMe = () => {
+    return this.instance.get<[]>('/get-me')
   }
 
-  public getPhotos = (params: { photographerId: number; albumId: number }) => {
-    return this.instance.get<GetPhotosResponse>('/get-photos-from-db', { params })
+  public postCreateAlbum = (newAlbum: CreateAlbumData) =>
+    this.instance.post<CreateAlbumResponse>('/create-album', newAlbum)
+
+  public getAlbums = (photographerId: string) => {
+    return this.instance.get<GetAlbumsResponse>('/get-albums-from-db', {
+      params: { photographerId },
+    })
+  }
+
+  // public getAlbumIcons = (albumIds: string[]) => {
+  //   return this.instance.post<{ [k: string]: string | null }>('/get-albums-thumbnail-icons', {
+  //     albumIds,
+  //   })
+  // }
+
+  public getPhotos = (params: GetPhotosBody) => {
+    return this.instance.get<{ [key: string]: string }>('/get-photos-from-db', { params })
   }
 
   public postPresignedPostPhotos = (photosToUpload: PresignedPhotosPostBody) =>
     this.instance.post<PresignedPhotosPostResponse[]>('/s3-upload', photosToUpload)
 
-  public postPresignedGetPhotos = (photoKeys: { photoKet: string }[]) =>
+  public postPresignedGetPhotos = (photoKeys: { photoKey: string }[]) =>
     this.instance.post<string[]>('/get-signed-photos', photoKeys)
 
-  public getAllPeople = () => this.instance.post<string[]>('/get-all-people')
+  public getAllPeople = () => this.instance.get<{ people: People[] }>('/get-all-people')
 }
 
 export default ProtectedApi

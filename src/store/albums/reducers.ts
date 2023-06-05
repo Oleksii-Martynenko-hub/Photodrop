@@ -1,24 +1,24 @@
 import { createSlice } from '@reduxjs/toolkit'
+import { toast } from 'react-toastify'
 
-import { APIError } from 'api/ErrorHandler'
+import { ErrorObject } from 'api/ErrorHandler'
 import { APIStatus } from 'api/MainApi'
 import { AlbumData } from 'api/ProtectedApi'
 
-import { getAlbumsAsync } from 'store/albums/actions'
+import { pendingCase, rejectedCase } from 'store'
+import { getAlbumsAsync, getPhotosByAlbumIdAsync, postCreateAlbumAsync } from 'store/albums/actions'
+import { errorToast } from 'store/login/reducers'
 
-interface AlbumsState {
+export interface AlbumsState {
   albums: AlbumData[]
   status: APIStatus
-  error: APIError
+  errors: ErrorObject[]
 }
 
 const initialState: AlbumsState = {
   albums: [],
   status: APIStatus.IDLE,
-  error: {
-    message: '',
-    code: 0,
-  },
+  errors: [],
 }
 
 export const albumsSlice = createSlice({
@@ -28,16 +28,44 @@ export const albumsSlice = createSlice({
     clearAlbumsState: () => initialState,
   },
   extraReducers: (builder) => {
-    builder.addCase(getAlbumsAsync.pending, (state) => {
-      state.status = APIStatus.PENDING
-    })
+    builder.addCase(getAlbumsAsync.pending, pendingCase())
+    builder.addCase(
+      getAlbumsAsync.rejected,
+      rejectedCase((_, { payload }) => errorToast(payload)),
+    )
     builder.addCase(getAlbumsAsync.fulfilled, (state, action) => {
       state.status = APIStatus.FULFILLED
-      state.albums = action.payload
+      state.albums = action.payload.reverse()
     })
-    builder.addCase(getAlbumsAsync.rejected, (state, action) => {
-      state.error = { message: action.error.message || '', code: +(action.error.code || '0') }
-      state.status = APIStatus.REJECTED
+
+    builder.addCase(getPhotosByAlbumIdAsync.pending, pendingCase())
+    builder.addCase(
+      getPhotosByAlbumIdAsync.rejected,
+      rejectedCase((_, { payload }) => errorToast(payload)),
+    )
+    builder.addCase(getPhotosByAlbumIdAsync.fulfilled, (state, { payload }) => {
+      state.status = APIStatus.FULFILLED
+      state.albums = state.albums.map((a) => (a.id === payload.id ? payload : a))
+    })
+
+    builder.addCase(postCreateAlbumAsync.pending, pendingCase())
+    builder.addCase(
+      postCreateAlbumAsync.rejected,
+      rejectedCase((_, { payload }) => errorToast(payload)),
+    )
+    builder.addCase(postCreateAlbumAsync.fulfilled, (state, action) => {
+      state.status = APIStatus.FULFILLED
+      state.albums.unshift(action.payload)
+
+      toast.success(`Album "${action.payload.name}" successfully created`, {
+        position: 'top-center',
+        autoClose: 1000,
+        // hideProgressBar: true,
+        // closeOnClick: true,
+        // pauseOnHover: true,
+        // draggable: true,
+        // progress: undefined,
+      })
     })
   },
 })

@@ -1,25 +1,62 @@
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 
-import { APIError } from 'api/ErrorHandler'
+import { ErrorObject } from 'api/ErrorHandler'
+import { APIStatus } from 'api/MainApi'
 
-export const UnhandledError = {
-  message: 'Cannot handle error data.',
-  code: 400,
-}
+export const UnhandledError = [
+  {
+    msg: 'Cannot handle error data.',
+  },
+]
 
 type UseAsyncAction = <T>(
-  response: T,
+  response: { data: T; status: APIStatus; errors: ErrorObject[] },
   handlers: {
-    onFulfilled?: (response: T) => void
-    onRejected?: (error: APIError) => void
+    onFulfilled?: (data: T) => void
+    onRejected?: (errors: ErrorObject[]) => void
     onPending?: () => void
   },
 ) => void
 
-export const useAsyncAction: UseAsyncAction = (response, handlers) => {
+export const useAsyncAction: UseAsyncAction = (
+  { data, status, errors },
+  { onPending, onRejected, onFulfilled },
+) => {
   useEffect(() => {
-    if (response) {
-      handlers.onFulfilled?.(response)
+    if (status === APIStatus.PENDING && onPending) {
+      onPending()
     }
-  }, [response])
+  }, [status, onPending])
+
+  useEffect(() => {
+    if (status === APIStatus.REJECTED && onRejected) {
+      onRejected(errors.length ? errors : UnhandledError)
+    }
+  }, [errors, status, onRejected])
+
+  useEffect(() => {
+    if (status === APIStatus.FULFILLED && onFulfilled) {
+      onFulfilled(data)
+    }
+  }, [data, status, onFulfilled])
 }
+
+// --------------------- using example --------------------
+// useAsyncAction(
+//   {
+//     data: albums,
+//     status,
+//     errors,
+//   },
+//   useMemo(() => ({
+//     onFulfilled: (data) => {
+//       // do something with data
+//     },
+//     onRejected: (errors) => {
+//       //handle errors
+//     },
+//     onPending: () => {
+//       // do something while pending
+//     },
+//   })),
+// )

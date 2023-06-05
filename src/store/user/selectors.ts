@@ -4,7 +4,7 @@ import { RootState } from 'store'
 
 const selectUserReducer = (state: RootState) => state.userReducer
 
-export const selectUserId: Selector<RootState, number | undefined> = createSelector(
+export const selectUserId: Selector<RootState, string | undefined> = createSelector(
   selectUserReducer,
   ({ id }) => id,
 )

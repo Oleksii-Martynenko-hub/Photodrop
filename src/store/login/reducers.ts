@@ -1,27 +1,32 @@
 import { createSlice } from '@reduxjs/toolkit'
 
-import { APIError } from 'api/ErrorHandler'
+import { ErrorObject } from 'api/ErrorHandler'
 import { APIStatus } from 'api/MainApi'
+import { toast } from 'react-toastify'
 
+import { pendingCase, rejectedCase } from 'store'
 import { loginAsync } from 'store/login/actions'
 
 import Tokens from 'utils/local-storage/tokens'
 
-
-
-interface LoginState {
+export interface LoginState {
   isLoggedIn: boolean
   status: APIStatus
-  error: APIError
+  errors: ErrorObject[]
 }
 
 const initialState: LoginState = {
   isLoggedIn: false,
   status: APIStatus.IDLE,
-  error: {
-    message: '',
-    code: 0,
-  },
+  errors: [],
+}
+
+export const errorToast = (payload: ErrorObject[] | undefined) => {
+  if (payload) {
+    payload.forEach(({ msg }) => {
+      toast.error(msg === 'Not authorized' ? 'Your login has expired, please login again' : msg)
+    })
+  }
 }
 
 export const loginSlice = createSlice({
@@ -41,11 +46,19 @@ export const loginSlice = createSlice({
         state.status = APIStatus.FULFILLED
       }
     },
+    setLoginStatus: (state, action: { payload: APIStatus }) => {
+      state.status = action.payload
+    },
+    setIsLoggedIn: (state, action: { payload: boolean }) => {
+      state.isLoggedIn = action.payload
+    },
   },
   extraReducers: (builder) => {
-    builder.addCase(loginAsync.pending, (state) => {
-      state.status = APIStatus.PENDING
-    })
+    builder.addCase(loginAsync.pending, pendingCase())
+    builder.addCase(
+      loginAsync.rejected,
+      rejectedCase((_, { payload }) => errorToast(payload)),
+    )
     builder.addCase(loginAsync.fulfilled, (state, action) => {
       const tokens = Tokens.getInstance()
 
@@ -54,15 +67,10 @@ export const loginSlice = createSlice({
       state.isLoggedIn = true
       state.status = APIStatus.FULFILLED
     })
-    builder.addCase(loginAsync.rejected, (state, action) => {
-      if (action.payload) {
-        state.error = action.payload
-        state.status = APIStatus.REJECTED
-      }
-    })
   },
 })
 
-export const { clearToken, clearLoginState, checkToken } = loginSlice.actions
+export const { clearToken, clearLoginState, checkToken, setLoginStatus, setIsLoggedIn } =
+  loginSlice.actions
 
 export default loginSlice.reducer

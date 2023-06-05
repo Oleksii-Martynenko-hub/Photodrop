@@ -17,3 +17,6 @@ export const webpack = {
     // '@': resolve(__dirname, 'src/'),
   },
 }
+export const devServer = {
+  port: 3001,
+}

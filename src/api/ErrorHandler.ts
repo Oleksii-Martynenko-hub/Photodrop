@@ -1,45 +1,57 @@
 /* eslint-disable no-prototype-builtins */
-export type APIError = {
-  message: string
-  code: number
-}
-
 export type ErrorResponse = {
-  data: {
-    message: string
+  response: {
+    data: {
+      errors: ErrorObject[]
+    }
   }
-  status: number
 }
 
-export const InternalError = {
-  message: 'Internal Error',
-  code: 500,
+export type ErrorObject = {
+  value?: string
+  msg: string
+  param?: string
+  location?: string
 }
 
-export const getExceptionPayload = (ex: unknown): APIError => {
-  if (typeof ex !== 'object' || !ex) {
+export const InternalError = [
+  {
+    msg: 'Internal Error',
+  },
+]
+
+export const getExceptionPayload = (exception: any): ErrorObject[] => {
+  if (typeof exception !== 'object' || !exception) {
     return InternalError
   }
 
-  const exception = ex as { response: ErrorResponse }
+  const ex = exception as ErrorResponse
 
-  if (ex.hasOwnProperty('response') && typeof exception.response === 'object') {
-    const res = exception.response as ErrorResponse
-
-    if (
-      res.hasOwnProperty('data') &&
-      typeof res.data === 'object' &&
-      res.data.hasOwnProperty('message') &&
-      typeof res.data.message === 'string' &&
-      res.hasOwnProperty('status') &&
-      typeof res.status === 'number'
-    ) {
-      return {
-        message: res.data.message,
-        code: res.status,
-      }
-    }
+  if (
+    ex.hasOwnProperty('response') &&
+    typeof ex.response === 'object' &&
+    ex.response.hasOwnProperty('errors')
+  ) {
+    const res = ex.response
+    const { errors } = res as unknown as { errors: ErrorObject[] }
+    return errors
   }
+
+  if (
+    ex.hasOwnProperty('response') &&
+    typeof ex.response === 'object' &&
+    ex.response.hasOwnProperty('data') &&
+    typeof ex.response.data === 'object' &&
+    ex.response.data.hasOwnProperty('errors') &&
+    ex.response.data.errors
+  ) {
+    return ex.response.data.errors
+  }
+
+  if (exception.message && exception.response.statusText)
+    return [{ msg: exception.message + ': ' + exception.response.statusText }]
+
+  if (exception.message) return [{ msg: exception.message }]
 
   return InternalError
 }

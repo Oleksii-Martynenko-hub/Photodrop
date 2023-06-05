@@ -36,13 +36,16 @@ abstract class HttpClientProtected extends HttpClient {
 
   private handleResponseError = async (e: any): Promise<any> => {
     const status = e.response ? e.response.status : null
-    const msg = e?.response?.data?.result?.message
+    const msg = e?.response?.data?.errors?.[0].msg
 
     const tokens = Tokens.getInstance()
 
     const currentToken = tokens.getToken()
 
-    if (status === 400 && (msg === 'Forbidden' || msg === 'Token was expired') && currentToken) {
+    if (
+      (msg === 'Forbidden' || msg === 'Not authorized' || msg === 'Token was expired') &&
+      currentToken
+    ) {
       try {
         const config = {
           headers: {
